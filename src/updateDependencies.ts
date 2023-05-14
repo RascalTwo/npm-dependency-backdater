@@ -1,15 +1,18 @@
-import type { LoggingFunction } from './types';
+import type { Options } from './types';
 import getHighestVersionAtTime from './getHighestVersionAtTime';
 import getPackageVersionDates from './getPackageVersionDates';
+import parseRawVersion from './parseRawVersion';
 
 export default async function updateDependencies(
 	dependencies: Record<string, string>,
 	datetime: Date,
-	log?: LoggingFunction,
+	{ stripPrefixes, log }: Options = {},
 ) {
 	const updatedDependencies: Record<string, string> = {};
 
-	for (const [dependency, version] of Object.entries(dependencies)) {
+	for (const [dependency, rawVersion] of Object.entries(dependencies)) {
+		const [semverPrefix, version] = parseRawVersion(rawVersion);
+
 		log?.(`Looking up ${dependency} versions...`);
 		const versionDates = await getPackageVersionDates(dependency);
 		const versionCount = Object.keys(versionDates).length;
@@ -19,15 +22,16 @@ export default async function updateDependencies(
 		if (highestVersion) {
 			log?.(`Highest version of ${dependency} is ${highestVersion}.`);
 			if (version !== highestVersion) {
-				log?.(`Updating ${dependency} from ${version} to ${highestVersion}.`);
+				const updatedVersion = `${stripPrefixes ? '' : semverPrefix ?? ''}${highestVersion}`;
+				updatedDependencies[dependency] = updatedVersion;
+
+				log?.(`Updated ${dependency} from ${rawVersion} to ${updatedVersion}.`);
 			} else {
 				log?.(`${dependency} is already ${highestVersion}.`);
 			}
 		} else {
 			log?.('No versions available.');
 		}
-
-		updatedDependencies[dependency] = highestVersion || version;
 	}
 
 	return updatedDependencies;

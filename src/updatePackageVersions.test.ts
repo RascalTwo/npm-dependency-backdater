@@ -13,18 +13,16 @@ describe('updatePackageVersions', () => {
 	const datetime = new Date('2022-01-01T00:00:00Z');
 
 	test('updates dependencies and devDependencies', async () => {
-		jest.spyOn(fs, 'readFile').mockResolvedValueOnce(
-			JSON.stringify({
-				dependencies: {
-					dependency1: '1.0.0',
-					dependency2: '2.0.0',
-				},
-				devDependencies: {
-					devDependency1: '1.0.0',
-					devDependency2: '2.0.0',
-				},
-			}),
-		);
+		const packageJson = {
+			dependencies: {
+				dependency1: '1.0.0',
+				dependency2: '2.0.0',
+			},
+			devDependencies: {
+				devDependency1: '1.0.0',
+				devDependency2: '2.0.0',
+			},
+		};
 		const updatedPackageJson = {
 			dependencies: {
 				dependency1: '1.1.0',
@@ -35,6 +33,7 @@ describe('updatePackageVersions', () => {
 				devDependency2: '1.9.0',
 			},
 		};
+		jest.spyOn(fs, 'readFile').mockResolvedValueOnce(JSON.stringify(packageJson));
 		updateDependenciesMock
 			.mockResolvedValueOnce(updatedPackageJson.dependencies)
 			.mockResolvedValueOnce(updatedPackageJson.devDependencies);
@@ -42,6 +41,7 @@ describe('updatePackageVersions', () => {
 		await updatePackageVersions(packageFilePath, datetime);
 
 		expect(fs.readFile).toHaveBeenCalledWith(packageFilePath, 'utf8');
+		expect(updateDependenciesMock).toHaveBeenCalledWith(packageJson.dependencies, datetime, {});
 		expect(fs.writeFile).toHaveBeenCalledWith(packageFilePath, JSON.stringify(updatedPackageJson, null, 2));
 	});
 
@@ -64,7 +64,7 @@ describe('updatePackageVersions', () => {
 			const log = jest.fn();
 			jest.spyOn(fs, 'readFile').mockResolvedValueOnce(JSON.stringify({}));
 
-			await updatePackageVersions(packageFilePath, datetime, log);
+			await updatePackageVersions(packageFilePath, datetime, { log });
 
 			expect(log).toHaveBeenCalledWith(`Reading ${packageFilePath}...`);
 			expect(log).toHaveBeenCalledWith(`${packageFilePath} read.`);
@@ -72,12 +72,13 @@ describe('updatePackageVersions', () => {
 		});
 
 		test('file written to', async () => {
+			const dependencies = {
+				dependency1: '1.0.0',
+			};
 			const log = jest.fn();
 			jest.spyOn(fs, 'readFile').mockResolvedValueOnce(
 				JSON.stringify({
-					dependencies: {
-						dependency1: '1.0.0',
-					},
+					dependencies,
 					devDependencies: {
 						devDependency1: '1.0.0',
 					},
@@ -87,16 +88,15 @@ describe('updatePackageVersions', () => {
 				.mockResolvedValueOnce({
 					dependency1: '1.1.0',
 				})
-				.mockResolvedValueOnce({
-					devDependency1: '1.0.0',
-				});
+				.mockResolvedValueOnce({});
 			jest.spyOn(fs, 'writeFile').mockResolvedValueOnce();
 
-			await updatePackageVersions(packageFilePath, datetime, log);
+			await updatePackageVersions(packageFilePath, datetime, { log });
 
 			expect(log).toHaveBeenCalledWith(`Reading ${packageFilePath}...`);
 			expect(log).toHaveBeenCalledWith(`${packageFilePath} read.`);
 			expect(log).toHaveBeenCalledWith('Updating dependencies...');
+			expect(updateDependenciesMock).toHaveBeenCalledWith(dependencies, datetime, { log });
 			expect(log).toHaveBeenCalledWith('dependencies updated.');
 			expect(log).toHaveBeenCalledWith('Updating devDependencies...');
 			expect(log).toHaveBeenCalledWith('No changes made to devDependencies.');

@@ -1,11 +1,12 @@
-import type { LoggingFunction } from './types';
+import type { Options } from './types';
 
 import fs from 'fs/promises';
 
-import shallowObjectsAreEqual from './shallowObjectsAreEqual';
 import updateDependencies from './updateDependencies';
 
-export default async function updatePackageVersions(packageFilePath: string, datetime: Date, log?: LoggingFunction) {
+export default async function updatePackageVersions(packageFilePath: string, datetime: Date, options: Options = {}) {
+	const { log } = options;
+
 	log?.(`Reading ${packageFilePath}...`);
 	const packageJson = JSON.parse(await fs.readFile(packageFilePath, 'utf8'));
 	log?.(`${packageFilePath} read.`);
@@ -14,11 +15,11 @@ export default async function updatePackageVersions(packageFilePath: string, dat
 	for (const key of ['dependencies', 'devDependencies']) {
 		if (key in packageJson) {
 			log?.(`Updating ${key}...`);
-			const dependencies = await updateDependencies(packageJson[key], datetime, log);
-			if (shallowObjectsAreEqual(dependencies, packageJson[key])) {
+			const updatedDependencies = await updateDependencies(packageJson[key], datetime, options);
+			if (Object.keys(updatedDependencies).length === 0) {
 				log?.(`No changes made to ${key}.`);
 			} else {
-				packageJson[key] = dependencies;
+				packageJson[key] = { ...packageJson[key], ...updatedDependencies };
 				log?.(`${key} updated.`);
 				changesMade = true;
 			}
