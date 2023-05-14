@@ -13,27 +13,25 @@ describe('main', () => {
 		['packageFilePath', ['', datetimeArg]],
 		['datetimeArg', [packageFilePath, '']],
 	] as const)('requires %s', async (_, args) => {
-		await expect(main(args[0], args[1], false, false)).rejects.toThrow();
+		await expect(main(args[0], args[1])).rejects.toThrow();
 
 		expect(updatePackageVersionsMock).not.toHaveBeenCalled();
 	});
 
-	test('calls updatePackageVersions with the correct arguments when silent is true and stripPrefixes is false', async () => {
-		await main(packageFilePath, datetimeArg, true, false);
+	test('passes correct arguments to updatePackageVersions', async () => {
+		const options = { stripPrefixes: true, interactive: true, log: console.log };
 
-		expect(updatePackageVersionsMock).toHaveBeenCalledWith(packageFilePath, expect.any(Date), undefined);
+		await main(packageFilePath, datetimeArg, options);
+
+		expect(updatePackageVersionsMock).toHaveBeenCalledWith(packageFilePath, expect.any(Date), options);
 	});
 
-	test('calls updatePackageVersions with the correct arguments (and logs) when silent is false and stripPrefixes is true', async () => {
-		jest.spyOn(console, 'log').mockImplementation();
+	test('logs arguments', async () => {
+		const options = { log: jest.fn() };
 
-		await main(packageFilePath, datetimeArg, false, true);
+		await main(packageFilePath, datetimeArg, options);
 
-		expect(updatePackageVersionsMock).toHaveBeenCalledWith(packageFilePath, expect.any(Date), {
-			stripPrefixes: true,
-			log: console.log,
-		});
-		expect(console.log).toHaveBeenCalledWith(
+		expect(options.log).toHaveBeenCalledWith(
 			`Attempting to update package versions in ${packageFilePath} to their latest versions as of ${new Date(
 				datetimeArg,
 			).toISOString()}...`,
@@ -43,7 +41,7 @@ describe('main', () => {
 	test('throws an error if datetimeArg is not a valid datetime', async () => {
 		const invalidDatetimeArg = 'abcd-de-fg';
 
-		await expect(main(packageFilePath, invalidDatetimeArg, false, false)).rejects.toThrow();
+		await expect(main(packageFilePath, invalidDatetimeArg)).rejects.toThrow();
 
 		expect(updatePackageVersionsMock).not.toHaveBeenCalled();
 	});

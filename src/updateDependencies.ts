@@ -1,13 +1,16 @@
 import type { Options } from './types';
+import generateVersionActions from './generateVersionActions';
 import getHighestVersionAtTime from './getHighestVersionAtTime';
 import getPackageVersionDates from './getPackageVersionDates';
 import parseRawVersion from './parseRawVersion';
+import promptUserForVersionAction from './promptUserForVersionAction';
 
 export default async function updateDependencies(
 	dependencies: Record<string, string>,
 	datetime: Date,
-	{ stripPrefixes, log }: Options = {},
+	options: Options = {},
 ) {
+	const { log } = options;
 	const updatedDependencies: Record<string, string> = {};
 
 	for (const [dependency, rawVersion] of Object.entries(dependencies)) {
@@ -22,10 +25,22 @@ export default async function updateDependencies(
 		if (highestVersion) {
 			log?.(`Highest version of ${dependency} is ${highestVersion}.`);
 			if (version !== highestVersion) {
-				const updatedVersion = `${stripPrefixes ? '' : semverPrefix ?? ''}${highestVersion}`;
-				updatedDependencies[dependency] = updatedVersion;
+				/* eslint-disable indent */
+				const updatedVersion = options.interactive
+					? await promptUserForVersionAction(
+							dependency,
+							generateVersionActions(rawVersion, highestVersion, options),
+							options,
+					  )
+					: `${options.stripPrefixes ? '' : semverPrefix ?? ''}${highestVersion}`;
+				/* eslint-enable indent */
 
-				log?.(`Updated ${dependency} from ${rawVersion} to ${updatedVersion}.`);
+				if (updatedVersion !== rawVersion) {
+					updatedDependencies[dependency] = updatedVersion;
+					log?.(`Updated ${dependency} from ${rawVersion} to ${updatedVersion}.`);
+				} else {
+					log?.(`Left ${dependency} as ${rawVersion}.`);
+				}
 			} else {
 				log?.(`${dependency} is already ${highestVersion}.`);
 			}

@@ -63,5 +63,6 @@ module.exports = {
 			'as-needed',
 		],
 		'@typescript-eslint/consistent-type-imports': 'error',
+		'no-mixed-spaces-and-tabs': ['error', 'smart-tabs'],
 	},
 };
