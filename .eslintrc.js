@@ -37,6 +37,9 @@ module.exports = {
 		quotes: [
 			'error',
 			'single',
+			{
+				avoidEscape: true,
+			},
 		],
 		semi: [
 			'error',
@@ -59,5 +62,6 @@ module.exports = {
 			'error',
 			'as-needed',
 		],
+		'@typescript-eslint/consistent-type-imports': 'error',
 	},
 };

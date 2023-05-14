@@ -16,6 +16,8 @@ describe('updateDependencies', () => {
 
 	const datetime = new Date('2022-01-01T00:00:00Z');
 
+	beforeEach(() => getPackageVersionDatesMock.mockResolvedValue({}));
+
 	test('passes package versions for each dependency to getHighestVersionAtTime', async () => {
 		const dependency1Versions = { 1: '1' };
 		const dependency2Versions = { 2: '2' };
@@ -31,6 +33,7 @@ describe('updateDependencies', () => {
 
 	test('returns updated dependencies', async () => {
 		getHighestVersionAtTimeMock.mockReturnValueOnce('1.1.0').mockReturnValueOnce('2.1.0');
+		getPackageVersionDatesMock.mockResolvedValueOnce({ 1: '1' }).mockResolvedValueOnce({ 2: '2' });
 
 		const updatedDependencies = await updateDependencies(dependencies, datetime);
 
@@ -48,6 +51,51 @@ describe('updateDependencies', () => {
 		expect(updatedDependencies).toEqual({
 			dependency1: '1.0.0',
 			dependency2: '2.1.0',
+		});
+	});
+
+	describe('logging', () => {
+		test('highest version not found', async () => {
+			const dependencies = {
+				dependency: '1.0.0',
+			};
+			const log = jest.fn();
+			getPackageVersionDatesMock.mockResolvedValueOnce({ 1: '1' });
+
+			await updateDependencies(dependencies, datetime, log);
+
+			expect(log).toHaveBeenCalledWith('Looking up dependency versions...');
+			expect(log).toHaveBeenCalledWith('Found 1 version for dependency.');
+			expect(log).toHaveBeenCalledWith('No versions available.');
+		});
+
+		test('highest version found and used', async () => {
+			const dependencies = {
+				dependency: '1.0.0',
+			};
+			const log = jest.fn();
+			getPackageVersionDatesMock.mockResolvedValueOnce({ 1: '1', 2: '2' });
+			getHighestVersionAtTimeMock.mockReturnValueOnce('1.1.0');
+
+			await updateDependencies(dependencies, datetime, log);
+
+			expect(log).toHaveBeenCalledWith('Found 2 versions for dependency.');
+			expect(log).toHaveBeenCalledWith('Highest version of dependency is 1.1.0.');
+			expect(log).toHaveBeenCalledWith('Updating dependency from 1.0.0 to 1.1.0.');
+		});
+
+		test('highest version found but was already used', async () => {
+			const dependencies = {
+				dependency: '1.0.0',
+			};
+			const log = jest.fn();
+			getHighestVersionAtTimeMock.mockReturnValueOnce('1.0.0');
+
+			await updateDependencies(dependencies, datetime, log);
+
+			expect(log).toHaveBeenCalledWith('Found 0 versions for dependency.');
+			expect(log).toHaveBeenCalledWith('Highest version of dependency is 1.0.0.');
+			expect(log).toHaveBeenCalledWith('dependency is already 1.0.0.');
 		});
 	});
 });
