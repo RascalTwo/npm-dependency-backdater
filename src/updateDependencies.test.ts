@@ -1,12 +1,21 @@
+import type { VersionAction } from './generateVersionActions';
+import generateVersionActions from './generateVersionActions';
 import getHighestVersionAtTime from './getHighestVersionAtTime';
 import getPackageVersionDates from './getPackageVersionDates';
+import promptUserForVersionAction from './promptUserForVersionAction';
 import updateDependencies from './updateDependencies';
 
+const generateVersionActionsMock = generateVersionActions as jest.MockedFunction<typeof generateVersionActions>;
 const getPackageVersionDatesMock = getPackageVersionDates as jest.MockedFunction<typeof getPackageVersionDates>;
 const getHighestVersionAtTimeMock = getHighestVersionAtTime as jest.MockedFunction<typeof getHighestVersionAtTime>;
+const promptUserForVersionActionMock = promptUserForVersionAction as jest.MockedFunction<
+	typeof promptUserForVersionAction
+>;
 
-jest.mock('./getPackageVersionDates');
+jest.mock('./generateVersionActions');
 jest.mock('./getHighestVersionAtTime');
+jest.mock('./getPackageVersionDates');
+jest.mock('./promptUserForVersionAction');
 
 describe('updateDependencies', () => {
 	const dependencies = {
@@ -108,6 +117,38 @@ describe('updateDependencies', () => {
 			expect(log).toHaveBeenCalledWith('Found 0 versions for dependency.');
 			expect(log).toHaveBeenCalledWith('Highest version of dependency is 1.0.0.');
 			expect(log).toHaveBeenCalledWith('dependency is already 1.0.0.');
+		});
+	});
+
+	describe('interactive', () => {
+		const dependencies = {
+			dependency: '^1.0.0',
+		};
+		const options = { interactive: true, log: jest.fn() };
+
+		beforeEach(() => getHighestVersionAtTimeMock.mockReturnValueOnce('1.1.0'));
+
+		test('calls generateVersionActions with correct args', async () => {
+			await updateDependencies(dependencies, datetime, options);
+
+			expect(generateVersionActionsMock).toHaveBeenCalledWith('^1.0.0', '1.1.0', options);
+		});
+
+		test('calls promptUserForVersionAction with correct args', async () => {
+			const versionActions = [['action', 'version']] as VersionAction[];
+			generateVersionActionsMock.mockReturnValueOnce(versionActions);
+
+			await updateDependencies(dependencies, datetime, options);
+
+			expect(promptUserForVersionActionMock).toHaveBeenCalledWith('dependency', versionActions, options);
+		});
+
+		test('logs message if same version is used', async () => {
+			promptUserForVersionActionMock.mockResolvedValueOnce('^1.0.0');
+
+			await updateDependencies(dependencies, datetime, options);
+
+			expect(options.log).toHaveBeenCalledWith('Left dependency as ^1.0.0.');
 		});
 	});
 });
