@@ -1,7 +1,7 @@
 {
   "name": "npm-dependency-backdater",
   "version": "1.0.0",
-  "description": "",
+  "description": "A tool to update npm dependencies to the latest version at a specified time",
   "main": "./dist/index.js",
   "scripts": {
     "test": "jest src",
@@ -14,7 +14,11 @@
     "prepare": "husky install",
     "postinstall": "npm run build"
   },
-  "author": "",
+  "author": {
+    "name": "Rascal Two",
+    "email": "therealrascaltwo@gmail.com",
+    "url": "https://rascaltwo.com"
+  },
   "license": "ISC",
   "dependencies": {
     "@types/node-fetch": "^2.6.3",
