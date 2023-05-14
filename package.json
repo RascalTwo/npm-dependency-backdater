@@ -1,0 +1,36 @@
+{
+  "name": "npm-dependency-backdater",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./dist/index.js",
+  "scripts": {
+    "test": "jest src",
+    "lint": "eslint *.js .*.js src",
+    "lint:fix": "npm run lint -- --fix",
+    "prettier": "prettier src",
+    "format": "npm run prettier -- --check",
+    "format:fix": "npm run format -- --write",
+    "build": "tsc --project tsconfig.build.json",
+    "prepare": "husky install",
+    "postinstall": "npm run build"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node-fetch": "^2.6.3",
+    "node-fetch": "^2.6.9",
+    "typescript": "^5.0.4"
+  },
+  "bin": "./dist/index.js",
+  "devDependencies": {
+    "@types/jest": "^29.5.1",
+    "@typescript-eslint/eslint-plugin": "^5.59.0",
+    "@typescript-eslint/parser": "^5.59.0",
+    "eslint": "^8.39.0",
+    "eslint-plugin-jest": "^27.2.1",
+    "husky": "^8.0.0",
+    "jest": "^29.5.0",
+    "prettier": "^2.8.8",
+    "ts-jest": "^29.1.0"
+  }
+}
