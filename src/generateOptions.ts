@@ -5,5 +5,6 @@ export default function generateOptions(args: string[]): Options {
 	if (!args.includes('--silent')) options.log = console.log;
 	if (args.includes('--strip-prefixes')) options.stripPrefixes = true;
 	if (args.includes('--interactive')) options.interactive = true;
+	if (args.includes('--allow-pre-release')) options.allowPreRelease = true;
 	return options;
 }

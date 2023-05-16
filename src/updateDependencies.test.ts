@@ -27,17 +27,28 @@ describe('updateDependencies', () => {
 
 	beforeEach(() => getPackageVersionDatesMock.mockResolvedValue({}));
 
-	test('passes package versions for each dependency to getHighestVersionAtTime', async () => {
-		const dependency1Versions = { 1: '1' };
-		const dependency2Versions = { 2: '2' };
-		getPackageVersionDatesMock.mockResolvedValueOnce(dependency1Versions).mockResolvedValueOnce(dependency2Versions);
+	describe('calls getHighestVersionAtTime', () => {
+		test('with package versions for each dependency', async () => {
+			const dependency1Versions = { 1: '1' };
+			const dependency2Versions = { 2: '2' };
+			getPackageVersionDatesMock.mockResolvedValueOnce(dependency1Versions).mockResolvedValueOnce(dependency2Versions);
 
-		await updateDependencies(dependencies, datetime);
+			await updateDependencies(dependencies, datetime);
 
-		expect(getPackageVersionDates).toHaveBeenCalledWith('dependency1');
-		expect(getPackageVersionDates).toHaveBeenCalledWith('dependency2');
-		expect(getHighestVersionAtTime).toHaveBeenCalledWith(dependency1Versions, datetime, true);
-		expect(getHighestVersionAtTime).toHaveBeenCalledWith(dependency2Versions, datetime, true);
+			expect(getPackageVersionDates).toHaveBeenCalledWith('dependency1');
+			expect(getPackageVersionDates).toHaveBeenCalledWith('dependency2');
+			expect(getHighestVersionAtTime).toHaveBeenCalledWith(dependency1Versions, datetime, true);
+			expect(getHighestVersionAtTime).toHaveBeenCalledWith(dependency2Versions, datetime, true);
+		});
+
+		test('with false strict value when allowPreRelease is true', async () => {
+			const dependency1Versions = { 1: '1' };
+			getPackageVersionDatesMock.mockResolvedValue({ 1: '1' });
+
+			await updateDependencies(dependencies, datetime, { allowPreRelease: true });
+
+			expect(getHighestVersionAtTime).toHaveBeenCalledWith(dependency1Versions, datetime, false);
+		});
 	});
 
 	test('returns updated dependencies', async () => {

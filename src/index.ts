@@ -7,7 +7,7 @@ import updatePackageVersions from './updatePackageVersions';
 
 export default async function main(packageFilePath: string, datetimeArg: string, options: Options = {}) {
 	if (!packageFilePath || !datetimeArg) {
-		throw new Error(`Usage: npm-dependency-backdater <package.json location> <datetime> [--silent] [--strip-prefixes]
+		throw new Error(`Usage: npm-dependency-backdater <package.json location> <datetime> [--silent] [--strip-prefixes] [--interactive] [--allow-pre-release]
 
 package.json location: The location of the package.json file to update
 datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
@@ -15,6 +15,7 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 --silent: Whether to suppress logging
 --strip-prefixes: Whether to strip the (${SUPPORTED_PREFIXES.join(', ')}) prefixes from the updated versions
 --interactive: Whether to prompt the user before updating each package version
+--allow-pre-release: Whether to allow the latest version to be a pre-release version (e.g. 1.0.0-alpha.1)
 `);
 	}
 

@@ -21,7 +21,7 @@ export default async function updateDependencies(
 		const versionCount = Object.keys(versionDates).length;
 		log?.(`Found ${versionCount} version${versionCount === 1 ? '' : 's'} for ${dependency}.`);
 
-		const highestVersion = getHighestVersionAtTime(versionDates, datetime, true);
+		const highestVersion = getHighestVersionAtTime(versionDates, datetime, !options.allowPreRelease);
 		if (highestVersion) {
 			log?.(`Highest version of ${dependency} is ${highestVersion}.`);
 			if (version !== highestVersion) {
