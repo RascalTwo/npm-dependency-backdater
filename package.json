@@ -1,7 +1,7 @@
 {
   "name": "npm-dependency-backdater",
   "version": "1.4.0",
-  "description": "A tool to update npm dependencies to the latest version at a specified time",
+  "description": "A tool to update NPM dependencies to the latest version available at a specified date",
   "main": "./dist/index.js",
   "scripts": {
     "test": "jest src",
@@ -25,7 +25,9 @@
     "node-fetch": "^2.6.9",
     "typescript": "^5.0.4"
   },
-  "bin": "./dist/index.js",
+  "bin": {
+    "npm-dependency-backdater": "./dist/index.js"
+  },
   "devDependencies": {
     "@types/jest": "^29.5.1",
     "@typescript-eslint/eslint-plugin": "^5.59.0",
