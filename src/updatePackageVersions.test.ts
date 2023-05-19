@@ -1,11 +1,16 @@
-import fs from 'fs/promises';
+import fs from 'fs';
 
 import updateDependencies from './updateDependencies';
 import updatePackageVersions from './updatePackageVersions';
 
 const updateDependenciesMock = updateDependencies as jest.MockedFunction<typeof updateDependencies>;
 
-jest.mock('fs/promises');
+jest.mock('fs', () => ({
+	promises: {
+		readFile: jest.fn(),
+		writeFile: jest.fn(),
+	},
+}));
 jest.mock('./updateDependencies');
 
 describe('updatePackageVersions', () => {
@@ -33,26 +38,46 @@ describe('updatePackageVersions', () => {
 				devDependency2: '1.9.0',
 			},
 		};
-		jest.spyOn(fs, 'readFile').mockResolvedValueOnce(JSON.stringify(packageJson));
+		jest.spyOn(fs.promises, 'readFile').mockResolvedValueOnce(JSON.stringify(packageJson));
 		updateDependenciesMock
 			.mockResolvedValueOnce(updatedPackageJson.dependencies)
 			.mockResolvedValueOnce(updatedPackageJson.devDependencies);
 
 		await updatePackageVersions(packageFilePath, datetime);
 
-		expect(fs.readFile).toHaveBeenCalledWith(packageFilePath, 'utf8');
+		expect(fs.promises.readFile).toHaveBeenCalledWith(packageFilePath, 'utf8');
 		expect(updateDependenciesMock).toHaveBeenCalledWith(packageJson.dependencies, datetime, {});
-		expect(fs.writeFile).toHaveBeenCalledWith(packageFilePath, JSON.stringify(updatedPackageJson, null, 2));
+		expect(fs.promises.writeFile).toHaveBeenCalledWith(packageFilePath, JSON.stringify(updatedPackageJson, null, 2));
 	});
 
 	test("doesn't write to file when there have been no changes", async () => {
-		const packageJson = {};
-		jest.spyOn(fs, 'readFile').mockResolvedValueOnce(JSON.stringify(packageJson));
+		jest.spyOn(fs.promises, 'readFile').mockResolvedValueOnce(JSON.stringify({}));
 
 		await updatePackageVersions(packageFilePath, datetime);
 
-		expect(fs.readFile).toHaveBeenCalledWith(packageFilePath, 'utf8');
-		expect(fs.writeFile).not.toHaveBeenCalled();
+		expect(fs.promises.readFile).toHaveBeenCalledWith(packageFilePath, 'utf8');
+		expect(fs.promises.writeFile).not.toHaveBeenCalled();
+	});
+
+	test("dry run console.logs diff and doesn't write to file", async () => {
+		jest.spyOn(fs.promises, 'readFile').mockResolvedValueOnce(
+			JSON.stringify({
+				dependencies: {
+					dependency1: '1.0.0',
+				},
+			}),
+		);
+		updateDependenciesMock.mockResolvedValueOnce({
+			dependency1: '1.1.0',
+		});
+		jest.spyOn(console, 'log').mockImplementation();
+
+		await updatePackageVersions(packageFilePath, datetime, { dryRun: true });
+
+		expect(console.log).toHaveBeenCalled();
+		const calledWith = (console.log as jest.MockedFunction<typeof console.log>).mock.calls[0][0];
+		expect(calledWith).toContain('-     "dependency1": "1.0.0"');
+		expect(calledWith).toContain('+     "dependency1": "1.1.0"');
 	});
 
 	describe('logging', () => {
@@ -62,7 +87,7 @@ describe('updatePackageVersions', () => {
 
 		test('file read and no changes made', async () => {
 			const log = jest.fn();
-			jest.spyOn(fs, 'readFile').mockResolvedValueOnce(JSON.stringify({}));
+			jest.spyOn(fs.promises, 'readFile').mockResolvedValueOnce(JSON.stringify({}));
 
 			await updatePackageVersions(packageFilePath, datetime, { log });
 
@@ -76,7 +101,7 @@ describe('updatePackageVersions', () => {
 				dependency1: '1.0.0',
 			};
 			const log = jest.fn();
-			jest.spyOn(fs, 'readFile').mockResolvedValueOnce(
+			jest.spyOn(fs.promises, 'readFile').mockResolvedValueOnce(
 				JSON.stringify({
 					dependencies,
 					devDependencies: {
@@ -89,7 +114,7 @@ describe('updatePackageVersions', () => {
 					dependency1: '1.1.0',
 				})
 				.mockResolvedValueOnce({});
-			jest.spyOn(fs, 'writeFile').mockResolvedValueOnce();
+			jest.spyOn(fs.promises, 'writeFile').mockResolvedValueOnce();
 
 			await updatePackageVersions(packageFilePath, datetime, { log });
 

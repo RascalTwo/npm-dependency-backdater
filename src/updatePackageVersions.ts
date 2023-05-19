@@ -1,15 +1,18 @@
 import type { Options } from './types';
 
-import fs from 'fs/promises';
-
+import chalk from 'chalk';
+import { diff } from 'jest-diff';
+import fs from 'fs';
 import updateDependencies from './updateDependencies';
 
 export default async function updatePackageVersions(packageFilePath: string, datetime: Date, options: Options = {}) {
 	const { log } = options;
 
 	log?.(`Reading ${packageFilePath}...`);
-	const packageJson = JSON.parse(await fs.readFile(packageFilePath, 'utf8'));
+	const packageJson = JSON.parse(await fs.promises.readFile(packageFilePath, 'utf8'));
 	log?.(`${packageFilePath} read.`);
+
+	const oldPackageJson = JSON.parse(JSON.stringify(packageJson));
 
 	let changesMade = false;
 	for (const key of ['dependencies', 'devDependencies']) {
@@ -30,7 +33,18 @@ export default async function updatePackageVersions(packageFilePath: string, dat
 		return log?.(`No changes made to ${packageFilePath}.`);
 	}
 
-	log?.(`Writing to ${packageFilePath}...`);
-	await fs.writeFile(packageFilePath, JSON.stringify(packageJson, null, 2));
-	log?.(`${packageFilePath} written to.`);
+	if (options.dryRun) {
+		console.log(
+			diff(oldPackageJson, packageJson, {
+				aAnnotation: 'Old Version(s)',
+				aColor: text => chalk.red(text),
+				bAnnotation: 'New Version(s)',
+				bColor: text => chalk.green(text),
+			}),
+		);
+	} else {
+		log?.(`Writing to ${packageFilePath}...`);
+		await fs.promises.writeFile(packageFilePath, JSON.stringify(packageJson, null, 2));
+		log?.(`${packageFilePath} written to.`);
+	}
 }
