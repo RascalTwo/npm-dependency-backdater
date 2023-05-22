@@ -45,4 +45,20 @@ describe('main', () => {
 
 		expect(updatePackageVersionsMock).not.toHaveBeenCalled();
 	});
+
+	test('maximizes datetime to now', async () => {
+		const now = new Date('3000-01-01T00:00:00Z');
+		jest.useFakeTimers().setSystemTime(now);
+
+		jest.spyOn(console, 'warn').mockImplementation();
+
+		const invalidDatetimeArg = '4000-01-01';
+
+		main(packageFilePath, invalidDatetimeArg);
+
+		expect(console.warn).toHaveBeenCalledWith(
+			'Warning: The provided datetime is in the future. Using the current datetime instead.',
+		);
+		expect(updatePackageVersionsMock).toHaveBeenCalledWith(packageFilePath, now, {});
+	});
 });

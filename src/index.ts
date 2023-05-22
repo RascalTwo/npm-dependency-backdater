@@ -20,9 +20,13 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 `);
 	}
 
-	const datetime = new Date(datetimeArg);
+	let datetime = new Date(datetimeArg);
 	if (isNaN(datetime.getTime())) {
 		throw new Error('Please provide a valid datetime (YYYY-MM-DDTHH:mm:ssZ)');
+	}
+	if (datetime.getTime() > Date.now()) {
+		datetime = new Date();
+		console.warn('Warning: The provided datetime is in the future. Using the current datetime instead.');
 	}
 
 	options.log?.(

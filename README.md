@@ -1,6 +1,6 @@
 # NPM Dependency Backdater
 
-![package version badge](https://img.shields.io/badge/npm--dependency--backdater-v1.5.0-blue) ![code coverage badge](https://img.shields.io/badge/coverage-100%25-lime)
+![package version badge](https://img.shields.io/badge/npm--dependency--backdater-v1.5.1-blue) ![code coverage badge](https://img.shields.io/badge/coverage-100%25-lime)
 
 A tool to update NPM dependencies to the latest version available at a specified date.
 
@@ -37,6 +37,8 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 
 This tool uses the [NPM registry API](https://github.com/npm/registry/blob/master/docs/REGISTRY-API.md) to get the versions and release dates of each package, and then updates the package.json file with the latest version available at the specified date.
 
+> It intelligently caches the NPM registry API responses, so that it doesn't have to make a request for packages it already knows about - and will only make requests when they're unknown or when the specified date is newer than the cached date.
+
 ## How it's made
 
 This tool is written in [TypeScript](https://www.typescriptlang.org/), and uses the [`node-fetch`](https://www.npmjs.com/package/node-fetch) package to make HTTP requests.
@@ -47,4 +49,3 @@ Fully following Test-Driven-Development via [`jest`](https://jestjs.io/), with [
 
 - Prettier logging and live display of the progress.
 - Locking within (major, minor, patch) versions, to prevent breaking changes.
-- Caching of the NPM registry API responses, to speed up subsequent runs.

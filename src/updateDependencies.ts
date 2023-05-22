@@ -17,7 +17,7 @@ export default async function updateDependencies(
 		const [semverPrefix, version] = parseRawVersion(rawVersion);
 
 		log?.(`Looking up ${dependency} versions...`);
-		const versionDates = await getPackageVersionDates(dependency);
+		const versionDates = await getPackageVersionDates(dependency, datetime);
 		const versionCount = Object.keys(versionDates).length;
 		log?.(`Found ${versionCount} version${versionCount === 1 ? '' : 's'} for ${dependency}.`);
 

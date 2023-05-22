@@ -1,45 +1,57 @@
-import fetch, { Response } from 'node-fetch';
+import { loadCache, saveCache } from './cache';
+import fetchPackageVersionDates from './fetchPackageVersionDates';
+
 import getPackageVersionDates from './getPackageVersionDates';
 
-const fetchMock = fetch as jest.MockedFunction<typeof fetch>;
+jest.mock('./fetchPackageVersionDates');
+jest.mock('./cache');
 
-jest.mock('node-fetch');
+const loadVersionCache = loadCache as jest.MockedFunction<typeof loadCache>;
+const saveVersionCache = saveCache as jest.MockedFunction<typeof saveCache>;
+const fetchPackageVersionDatesMock = fetchPackageVersionDates as jest.MockedFunction<typeof fetchPackageVersionDates>;
 
 describe('getPackageVersionDates', () => {
-	const packageName = 'example-package';
-
-	const generateMockJSONResponse = <T>(json: T) => {
-		const mockResponse = new Response();
-		mockResponse.json = () => Promise.resolve(json);
-		return mockResponse;
-	};
-
-	test('calls the npm registry with the correct package name', async () => {
-		const mockResponse = generateMockJSONResponse({ time: {} });
-		fetchMock.mockResolvedValue(mockResponse);
-
-		await getPackageVersionDates(packageName);
-
-		expect(fetch).toHaveBeenCalledWith(`https://registry.npmjs.org/${packageName}`);
-	});
-
-	test('fetches and returns the version dates', async () => {
-		const expectedVersions = {
-			'1.0.0': '2022-01-01T00:00:00Z',
-			'2.0.0': '2022-02-01T00:00:00Z',
+	test('uses cached version', async () => {
+		const datetime = new Date('2020-01-01T00:00:00Z');
+		const versionCache = {
+			foo: {
+				queryDate: datetime.toISOString(),
+				versions: { '1.0.0': 'version' },
+			},
 		};
-		const mockResponse = generateMockJSONResponse({ time: expectedVersions });
-		fetchMock.mockResolvedValue(mockResponse);
+		loadVersionCache.mockResolvedValue(versionCache);
 
-		const result = await getPackageVersionDates(packageName);
+		expect(await getPackageVersionDates('foo', datetime)).toBe(versionCache.foo.versions);
 
-		expect(result).toEqual(expectedVersions);
+		expect(fetchPackageVersionDates).not.toHaveBeenCalled();
+		expect(saveVersionCache).not.toHaveBeenCalled();
 	});
 
-	test('handles fetch error', async () => {
-		const mockError = new Error('Fetch error');
-		fetchMock.mockRejectedValue(mockError);
+	test.each([
+		['for new package', undefined],
+		[
+			'for cached package',
+			{
+				queryDate: new Date('2019-01-01T00:00:00Z'),
+				versions: {},
+			},
+		],
+	])('fetches new version and updates cache %s', async (_, fooCache) => {
+		const datetime = new Date('2020-01-01T00:00:00Z');
+		loadVersionCache.mockResolvedValue({
+			foo: fooCache,
+		});
+		const versions = { '1.1.0': datetime.toISOString() };
+		fetchPackageVersionDatesMock.mockResolvedValue(versions);
 
-		await expect(getPackageVersionDates(packageName)).rejects.toThrow('Fetch error');
+		expect(await getPackageVersionDates('foo', datetime)).toBe(versions);
+
+		expect(fetchPackageVersionDates).toHaveBeenCalledWith('foo');
+		expect(saveVersionCache).toHaveBeenCalledWith({
+			foo: {
+				queryDate: datetime.toISOString(),
+				versions: versions,
+			},
+		});
 	});
 });

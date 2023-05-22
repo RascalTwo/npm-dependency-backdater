@@ -35,8 +35,8 @@ describe('updateDependencies', () => {
 
 			await updateDependencies(dependencies, datetime);
 
-			expect(getPackageVersionDates).toHaveBeenCalledWith('dependency1');
-			expect(getPackageVersionDates).toHaveBeenCalledWith('dependency2');
+			expect(getPackageVersionDates).toHaveBeenCalledWith('dependency1', datetime);
+			expect(getPackageVersionDates).toHaveBeenCalledWith('dependency2', datetime);
 			expect(getHighestVersionAtTime).toHaveBeenCalledWith(dependency1Versions, datetime, true);
 			expect(getHighestVersionAtTime).toHaveBeenCalledWith(dependency2Versions, datetime, true);
 		});
