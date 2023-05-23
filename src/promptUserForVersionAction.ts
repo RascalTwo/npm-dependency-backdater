@@ -1,9 +1,9 @@
-import type { Options } from './types';
+import type { Options, VersionAction } from './types';
 import getEnumFromUser from './getEnumFromUser';
 
 export default async function promptUserForVersionAction(
 	dependency: string,
-	versionActions: [string, string][],
+	versionActions: VersionAction[],
 	options: Options = {},
 ) {
 	const { log = console.log } = options;

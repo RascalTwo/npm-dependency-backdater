@@ -1,7 +1,5 @@
-import type { Options } from './types';
+import type { Options, VersionAction } from './types';
 import parseRawVersion from './parseRawVersion';
-
-export type VersionAction = [string, string];
 
 export default function generateVersionActions(rawVersion: string, proposedVersion: string, options: Options = {}) {
 	const semverPrefix = parseRawVersion(rawVersion)[0];

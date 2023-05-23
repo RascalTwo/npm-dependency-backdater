@@ -1,34 +1,30 @@
-import type { Options } from './types';
+import type { DependencyMap, Options } from './types';
 import generateVersionActions from './generateVersionActions';
 import getHighestVersionAtTime from './getHighestVersionAtTime';
 import getPackageVersionDates from './getPackageVersionDates';
 import parseRawVersion from './parseRawVersion';
 import promptUserForVersionAction from './promptUserForVersionAction';
 
-export default async function updateDependencies(
-	dependencies: Record<string, string>,
-	datetime: Date,
-	options: Options = {},
-) {
+export default async function updateDependencies(dependencyMap: DependencyMap, datetime: Date, options: Options = {}) {
 	const { log } = options;
-	const updatedDependencies: Record<string, string> = {};
+	const updatedDependencyMap: DependencyMap = {};
 
-	for (const [dependency, rawVersion] of Object.entries(dependencies)) {
+	for (const [packageName, rawVersion] of Object.entries(dependencyMap)) {
 		const [semverPrefix, version] = parseRawVersion(rawVersion);
 
-		log?.(`Looking up ${dependency} versions...`);
-		const versionDates = await getPackageVersionDates(dependency, datetime);
+		log?.(`Looking up ${packageName} versions...`);
+		const versionDates = await getPackageVersionDates(packageName, datetime);
 		const versionCount = Object.keys(versionDates).length;
-		log?.(`Found ${versionCount} version${versionCount === 1 ? '' : 's'} for ${dependency}.`);
+		log?.(`Found ${versionCount} version${versionCount === 1 ? '' : 's'} for ${packageName}.`);
 
 		const highestVersion = getHighestVersionAtTime(versionDates, datetime, !options.allowPreRelease);
 		if (highestVersion) {
-			log?.(`Highest version of ${dependency} is ${highestVersion}.`);
+			log?.(`Highest version of ${packageName} is ${highestVersion}.`);
 			if (version !== highestVersion) {
 				/* eslint-disable indent */
 				const updatedVersion = options.interactive
 					? await promptUserForVersionAction(
-							dependency,
+							packageName,
 							generateVersionActions(rawVersion, highestVersion, options),
 							options,
 					  )
@@ -36,18 +32,18 @@ export default async function updateDependencies(
 				/* eslint-enable indent */
 
 				if (updatedVersion !== rawVersion) {
-					updatedDependencies[dependency] = updatedVersion;
-					log?.(`Updated ${dependency} from ${rawVersion} to ${updatedVersion}.`);
+					updatedDependencyMap[packageName] = updatedVersion;
+					log?.(`Updated ${packageName} from ${rawVersion} to ${updatedVersion}.`);
 				} else {
-					log?.(`Left ${dependency} as ${rawVersion}.`);
+					log?.(`Left ${packageName} as ${rawVersion}.`);
 				}
 			} else {
-				log?.(`${dependency} is already ${highestVersion}.`);
+				log?.(`${packageName} is already ${highestVersion}.`);
 			}
 		} else {
 			log?.('No versions available.');
 		}
 	}
 
-	return updatedDependencies;
+	return updatedDependencyMap;
 }

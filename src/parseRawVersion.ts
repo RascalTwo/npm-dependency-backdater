@@ -1,6 +1,6 @@
 export const SUPPORTED_PREFIXES = ['>=', '<=', '>', '<', '~', '^'];
 
-export default function parseRawVersion(rawVersion: string) {
+export default function parseRawVersion(rawVersion: string): [string | null, string] {
 	const prefix = SUPPORTED_PREFIXES.find(prefix => rawVersion.startsWith(prefix));
 	if (!prefix) return [null, rawVersion];
 

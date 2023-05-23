@@ -7,3 +7,14 @@ export interface Options {
 	dryRun?: boolean;
 	log?: LoggingFunction;
 }
+
+export interface DependencyMap {
+	[packageName: string]: string;
+}
+
+export interface VersionMap {
+	[version: string]: string;
+}
+
+export type VersionAction = [string, string];
+

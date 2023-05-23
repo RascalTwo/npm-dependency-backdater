@@ -1,4 +1,4 @@
-import type { VersionAction } from './generateVersionActions';
+import type { VersionAction } from './types';
 import generateVersionActions from './generateVersionActions';
 import getHighestVersionAtTime from './getHighestVersionAtTime';
 import getPackageVersionDates from './getPackageVersionDates';

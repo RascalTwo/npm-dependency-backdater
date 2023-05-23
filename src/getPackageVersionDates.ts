@@ -1,10 +1,11 @@
 import { loadCache, saveCache } from './cache';
+import type { VersionMap } from './types';
 import fetchPackageVersionDates from './fetchPackageVersionDates';
 
 export interface VersionCache {
 	[packageName: string]: {
 		queryDate: string;
-		versions: Record<string, string>;
+		versions: VersionMap;
 	};
 }
 
