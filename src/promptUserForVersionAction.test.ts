@@ -17,7 +17,7 @@ describe('promptUserForVersionAction', () => {
 				['install', '1.0.0'],
 				['upgrade', '2.0.0'],
 			],
-			{ log },
+			log,
 		);
 
 		expect(result).toBe('2.0.0');
@@ -35,7 +35,7 @@ describe('promptUserForVersionAction', () => {
 				['install', '1.0.0'],
 				['upgrade', '2.0.0'],
 			],
-			{ log },
+			log,
 		);
 
 		expect(log).toHaveBeenCalledWith('0 - install 1.0.0');
@@ -45,7 +45,7 @@ describe('promptUserForVersionAction', () => {
 	it("instantly returns the only option if there's only one", async () => {
 		const log = jest.fn();
 
-		const result = await promptUserForVersionAction('foo', [['install', '1.0.0']], { log });
+		const result = await promptUserForVersionAction('foo', [['install', '1.0.0']], log);
 
 		expect(result).toBe('1.0.0');
 		expect(getEnumFromUserMock).not.toHaveBeenCalled();

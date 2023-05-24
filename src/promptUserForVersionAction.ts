@@ -1,13 +1,11 @@
-import type { Options, VersionAction } from './types';
+import type { VersionAction } from './types';
 import getEnumFromUser from './getEnumFromUser';
 
 export default async function promptUserForVersionAction(
 	dependency: string,
 	versionActions: VersionAction[],
-	options: Options = {},
+	log = console.log,
 ) {
-	const { log = console.log } = options;
-
 	if (versionActions.length === 1) return versionActions[0][1];
 
 	log(`Choose action for ${dependency}:`);

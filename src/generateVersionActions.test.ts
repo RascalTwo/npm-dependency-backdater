@@ -33,7 +33,7 @@ describe('generateVersionActions', () => {
 	it('should return the correct actions when stripPrefixes is false', () => {
 		parseRawVersionMock.mockReturnValueOnce(['^', '1.0.0']);
 
-		const result = generateVersionActions('1.0.0', '2.0.0', { stripPrefixes: true });
+		const result = generateVersionActions('1.0.0', '2.0.0', true);
 
 		expect(result).toEqual([
 			['Leave as', '1.0.0'],

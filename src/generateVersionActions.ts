@@ -1,7 +1,7 @@
-import type { Options, VersionAction } from './types';
+import type { VersionAction } from './types';
 import parseRawVersion from './parseRawVersion';
 
-export default function generateVersionActions(rawVersion: string, proposedVersion: string, options: Options = {}) {
+export default function generateVersionActions(rawVersion: string, proposedVersion: string, stripPrefixes?: boolean) {
 	const semverPrefix = parseRawVersion(rawVersion)[0];
 
 	const actions: VersionAction[] = [
@@ -10,7 +10,7 @@ export default function generateVersionActions(rawVersion: string, proposedVersi
 	] as [string, string][];
 
 	if (semverPrefix) {
-		actions.splice(options.stripPrefixes ? 2 : 1, 0, ['Change to', `${semverPrefix}${proposedVersion}`]);
+		actions.splice(stripPrefixes ? 2 : 1, 0, ['Change to', `${semverPrefix}${proposedVersion}`]);
 	}
 
 	return actions;
