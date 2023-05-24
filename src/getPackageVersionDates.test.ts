@@ -21,7 +21,7 @@ describe('getPackageVersionDates', () => {
 		};
 		loadVersionCache.mockResolvedValue(versionCache);
 
-		expect(await getPackageVersionDates('foo', datetime)).toBe(versionCache.foo.versions);
+		expect(await getPackageVersionDates('foo', datetime)).toEqual([versionCache.foo.versions, datetime]);
 
 		expect(fetchPackageVersionDates).not.toHaveBeenCalled();
 		expect(saveVersionCache).not.toHaveBeenCalled();
@@ -32,7 +32,7 @@ describe('getPackageVersionDates', () => {
 		[
 			'for cached package',
 			{
-				queryDate: new Date('2019-01-01T00:00:00Z'),
+				queryDate: new Date('2019-01-01T00:00:00Z').toISOString(),
 				versions: {},
 			},
 		],
@@ -44,7 +44,7 @@ describe('getPackageVersionDates', () => {
 		const versions = { '1.1.0': datetime.toISOString() };
 		fetchPackageVersionDatesMock.mockResolvedValue(versions);
 
-		expect(await getPackageVersionDates('foo', datetime)).toBe(versions);
+		expect(await getPackageVersionDates('foo', datetime)).toEqual([versions, datetime]);
 
 		expect(fetchPackageVersionDates).toHaveBeenCalledWith('foo');
 		expect(saveVersionCache).toHaveBeenCalledWith({

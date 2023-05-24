@@ -12,12 +12,13 @@ export interface VersionCache {
 const loadVersionCache = () => loadCache<VersionCache>();
 const saveVersionCache = (cache: VersionCache) => saveCache(cache);
 
-export default async function getPackageVersionDates(packageName: string, datetime: Date) {
+export default async function getPackageVersionDates(packageName: string, datetime: Date): Promise<[VersionMap, Date]> {
 	const versionCache = await loadVersionCache();
 	const packageCache = versionCache[packageName] ?? { queryDate: 0, versions: {} };
 
-	if (datetime.getTime() <= new Date(packageCache.queryDate).getTime()) {
-		return packageCache.versions;
+	const cachedDatetime = new Date(packageCache.queryDate);
+	if (datetime.getTime() <= cachedDatetime.getTime()) {
+		return [packageCache.versions, cachedDatetime];
 	}
 
 	const versions = await fetchPackageVersionDates(packageName);
@@ -30,5 +31,5 @@ export default async function getPackageVersionDates(packageName: string, dateti
 		},
 	});
 
-	return versions;
+	return [versions, datetime];
 }
