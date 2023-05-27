@@ -1,7 +1,9 @@
+import updatePackageVersions, { POSSIBLE_EVENTS } from './updatePackageVersions';
+
 import fs from 'fs';
 
+import { generateMockListener } from './testHelpers';
 import updateDependencies from './updateDependencies';
-import updatePackageVersions from './updatePackageVersions';
 
 const updateDependenciesMock = updateDependencies as jest.MockedFunction<typeof updateDependencies>;
 
@@ -16,6 +18,7 @@ jest.mock('./updateDependencies');
 describe('updatePackageVersions', () => {
 	const packageFilePath = '/path/to/package.json';
 	const datetime = new Date('2022-01-01T00:00:00Z');
+	const { listener, handles } = generateMockListener(...POSSIBLE_EVENTS);
 
 	test('updates dependencies and devDependencies', async () => {
 		const packageJson = {
@@ -43,23 +46,61 @@ describe('updatePackageVersions', () => {
 			.mockResolvedValueOnce(updatedPackageJson.dependencies)
 			.mockResolvedValueOnce(updatedPackageJson.devDependencies);
 
-		await updatePackageVersions(packageFilePath, datetime);
+		await updatePackageVersions(packageFilePath, datetime, { listener });
 
+		expect(handles.reading_package_file).toHaveBeenCalledWith({ edge: 'start', packageFilePath });
 		expect(fs.promises.readFile).toHaveBeenCalledWith(packageFilePath, 'utf8');
-		expect(updateDependenciesMock).toHaveBeenCalledWith(packageJson.dependencies, datetime, {});
-		expect(fs.promises.writeFile).toHaveBeenCalledWith(packageFilePath, JSON.stringify(updatedPackageJson, null, 2));
+		expect(handles.reading_package_file).toHaveBeenCalledWith({
+			edge: 'finish',
+			packageFilePath,
+			content: JSON.stringify(packageJson),
+		});
+		expect(handles.discovering_dependency_map).toHaveBeenCalledWith({ edge: 'start', map: 'dependencies' });
+		expect(handles.discovering_dependency_map).toHaveBeenCalledWith({
+			edge: 'finish',
+			map: 'dependencies',
+			dependencyMap: packageJson.dependencies,
+		});
+		expect(updateDependenciesMock).toHaveBeenCalledWith(packageJson.dependencies, datetime, { listener });
+		expect(handles.dependency_map_processed).toHaveBeenCalledWith({
+			map: 'dependencies',
+			updates: updatedPackageJson.dependencies,
+		});
+		expect(handles.changes_made).toHaveBeenCalledWith(true);
+		expect(handles.make_changes).toHaveBeenCalledWith({
+			packageFilePath,
+			packageJson: {
+				old: packageJson,
+				new: updatedPackageJson,
+			},
+			dryRun: false,
+		});
 	});
 
-	test("doesn't write to file when there have been no changes", async () => {
+	test("'make_changes' isn't emitted when there are no changes made", async () => {
 		jest.spyOn(fs.promises, 'readFile').mockResolvedValueOnce(JSON.stringify({}));
 
-		await updatePackageVersions(packageFilePath, datetime);
+		await updatePackageVersions(packageFilePath, datetime, { listener });
 
 		expect(fs.promises.readFile).toHaveBeenCalledWith(packageFilePath, 'utf8');
-		expect(fs.promises.writeFile).not.toHaveBeenCalled();
+		expect(handles.discovering_dependency_map).toHaveBeenCalledWith({ edge: 'start', map: 'dependencies' });
+		expect(handles.discovering_dependency_map).toHaveBeenCalledWith({
+			edge: 'finish',
+			map: 'dependencies',
+			dependencyMap: undefined,
+		});
+		expect(handles.dependency_map_processed).not.toHaveBeenCalled();
+		expect(handles.discovering_dependency_map).toHaveBeenCalledWith({ edge: 'start', map: 'devDependencies' });
+		expect(handles.discovering_dependency_map).toHaveBeenCalledWith({
+			edge: 'finish',
+			map: 'devDependencies',
+			dependencyMap: undefined,
+		});
+		expect(handles.changes_made).toHaveBeenCalledWith(false);
+		expect(handles.make_changes).not.toHaveBeenCalled();
 	});
 
-	test("dry run console.logs diff and doesn't write to file", async () => {
+	test('dry run passed to make_changes', async () => {
 		jest.spyOn(fs.promises, 'readFile').mockResolvedValueOnce(
 			JSON.stringify({
 				dependencies: {
@@ -70,63 +111,8 @@ describe('updatePackageVersions', () => {
 		updateDependenciesMock.mockResolvedValueOnce({
 			dependency1: '1.1.0',
 		});
-		jest.spyOn(console, 'log').mockImplementation();
 
-		await updatePackageVersions(packageFilePath, datetime, { dryRun: true });
-
-		expect(console.log).toHaveBeenCalled();
-		const calledWith = (console.log as jest.MockedFunction<typeof console.log>).mock.calls[0][0];
-		expect(calledWith).toContain('-     "dependency1": "1.0.0"');
-		expect(calledWith).toContain('+     "dependency1": "1.1.0"');
-	});
-
-	describe('logging', () => {
-		beforeEach(() => {
-			jest.spyOn(console, 'log').mockImplementation();
-		});
-
-		test('file read and no changes made', async () => {
-			const log = jest.fn();
-			jest.spyOn(fs.promises, 'readFile').mockResolvedValueOnce(JSON.stringify({}));
-
-			await updatePackageVersions(packageFilePath, datetime, { log });
-
-			expect(log).toHaveBeenCalledWith(`Reading ${packageFilePath}...`);
-			expect(log).toHaveBeenCalledWith(`${packageFilePath} read.`);
-			expect(log).toHaveBeenCalledWith(`No changes made to ${packageFilePath}.`);
-		});
-
-		test('file written to', async () => {
-			const dependencies = {
-				dependency1: '1.0.0',
-			};
-			const log = jest.fn();
-			jest.spyOn(fs.promises, 'readFile').mockResolvedValueOnce(
-				JSON.stringify({
-					dependencies,
-					devDependencies: {
-						devDependency1: '1.0.0',
-					},
-				}),
-			);
-			updateDependenciesMock
-				.mockResolvedValueOnce({
-					dependency1: '1.1.0',
-				})
-				.mockResolvedValueOnce({});
-			jest.spyOn(fs.promises, 'writeFile').mockResolvedValueOnce();
-
-			await updatePackageVersions(packageFilePath, datetime, { log });
-
-			expect(log).toHaveBeenCalledWith(`Reading ${packageFilePath}...`);
-			expect(log).toHaveBeenCalledWith(`${packageFilePath} read.`);
-			expect(log).toHaveBeenCalledWith('Updating dependencies...');
-			expect(updateDependenciesMock).toHaveBeenCalledWith(dependencies, datetime, { log });
-			expect(log).toHaveBeenCalledWith('dependencies updated.');
-			expect(log).toHaveBeenCalledWith('Updating devDependencies...');
-			expect(log).toHaveBeenCalledWith('No changes made to devDependencies.');
-			expect(log).toHaveBeenCalledWith(`Writing to ${packageFilePath}...`);
-			expect(log).toHaveBeenCalledWith(`${packageFilePath} written to.`);
-		});
+		await updatePackageVersions(packageFilePath, datetime, { listener, dryRun: true });
+		expect(handles.make_changes).toHaveBeenCalledWith(expect.objectContaining({ dryRun: true }));
 	});
 });

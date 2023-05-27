@@ -1,39 +1,42 @@
 #!/usr/bin/env node
 
 import type { Options } from './types';
-import { SUPPORTED_PREFIXES } from './parseRawVersion';
 import generateOptions from './generateOptions';
 import updatePackageVersions from './updatePackageVersions';
 
-export default async function main(packageFilePath: string, datetimeArg: string, options: Options = {}) {
+export const POSSIBLE_EVENTS = ['missing_arguments', 'invalid_datetime', 'datetime_in_future', 'run'] as const;
+
+export default async function main(packageFilePath: string, datetimeArg: string, options: Options) {
+	const { listener } = options;
+	//listener.validate();
+
 	if (!packageFilePath || !datetimeArg) {
-		throw new Error(`Usage: npm-dependency-backdater <package.json location> <datetime> [--silent] [--strip-prefixes] [--interactive] [--allow-pre-release] [--dry-run]
-
-package.json location: The location of the package.json file to update
-datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
-
---silent: Whether to suppress logging
---strip-prefixes: Whether to strip the (${SUPPORTED_PREFIXES.join(', ')}) prefixes from the updated versions
---interactive: Whether to prompt the user before updating each package version
---allow-pre-release: Whether to allow the latest version to be a pre-release version (e.g. 1.0.0-alpha.1)
---dry-run: Whether to log the changes that would be made without actually making them
-`);
+		return listener.emit('missing_arguments', undefined);
 	}
 
 	let datetime = new Date(datetimeArg);
 	if (isNaN(datetime.getTime())) {
-		throw new Error('Please provide a valid datetime (YYYY-MM-DDTHH:mm:ssZ)');
+		return listener.emit('invalid_datetime', datetimeArg);
 	}
 	if (datetime.getTime() > Date.now()) {
-		datetime = new Date();
-		console.warn('Warning: The provided datetime is in the future. Using the current datetime instead.');
+		datetime = listener.emit('datetime_in_future', datetime);
 	}
 
-	options.log?.(
-		`Attempting to update package versions in ${packageFilePath} to their latest versions as of ${datetime.toISOString()}...`,
-	);
+	listener.emit('run', {
+		edge: 'start',
+		options,
+		packageFilePath,
+		datetime,
+	});
 
-	return updatePackageVersions(packageFilePath, datetime, options);
+	await updatePackageVersions(packageFilePath, datetime, options);
+
+	listener.emit('run', {
+		edge: 'finish',
+		options,
+		packageFilePath,
+		datetime,
+	});
 }
 
 // istanbul ignore next

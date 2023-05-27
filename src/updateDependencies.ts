@@ -3,45 +3,66 @@ import generateVersionActions from './generateVersionActions';
 import getHighestVersionAtTime from './getHighestVersionAtTime';
 import getPackageVersionDates from './getPackageVersionDates';
 import parseRawVersion from './parseRawVersion';
-import promptUserForVersionAction from './promptUserForVersionAction';
 
-export default async function updateDependencies(dependencyMap: DependencyMap, datetime: Date, options: Options = {}) {
-	const { log } = options;
+export const POSSIBLE_EVENTS = [
+	'getting_package_version_dates',
+	'calculated_highest_version',
+	'prompt_user_for_version_action',
+	'dependency_processed',
+] as const;
+
+export default async function updateDependencies(dependencyMap: DependencyMap, datetime: Date, options: Options) {
+	const { listener } = options;
 	const updatedDependencyMap: DependencyMap = {};
 
 	for (const [packageName, rawVersion] of Object.entries(dependencyMap)) {
 		const [semverPrefix, version] = parseRawVersion(rawVersion);
 
-		log?.(`Looking up ${packageName} versions...`);
-		const versionDates = await getPackageVersionDates(packageName, datetime);
-		const versionCount = Object.keys(versionDates).length;
-		log?.(`Found ${versionCount} version${versionCount === 1 ? '' : 's'} for ${packageName}.`);
+		const basePayload = {
+			packageName,
+			version: {
+				raw: rawVersion,
+				prefix: semverPrefix,
+				parsed: version,
+			},
+			datetime,
+		};
+		listener.emit('getting_package_version_dates', {
+			...basePayload,
+			edge: 'start',
+		});
+		const [versions, cacheDate] = await getPackageVersionDates(packageName, datetime);
+		listener.emit('getting_package_version_dates', {
+			...basePayload,
+			edge: 'finish',
+			cacheDate,
+			versions,
+		});
 
-		const highestVersion = getHighestVersionAtTime(versionDates, datetime, !options.allowPreRelease);
-		if (highestVersion) {
-			log?.(`Highest version of ${packageName} is ${highestVersion}.`);
-			if (version !== highestVersion) {
-				/* eslint-disable indent */
-				const updatedVersion = options.interactive
-					? await promptUserForVersionAction(
-							packageName,
-							generateVersionActions(rawVersion, highestVersion, options),
-							options,
-					  )
-					: `${options.stripPrefixes ? '' : semverPrefix ?? ''}${highestVersion}`;
-				/* eslint-enable indent */
+		const highestVersion = getHighestVersionAtTime(versions, datetime, !options.allowPreRelease);
+		listener.emit('calculated_highest_version', {
+			packageName,
+			version,
+			highestVersion,
+			allowPreRelease: !!options.allowPreRelease,
+		});
+		if (highestVersion && version !== highestVersion) {
+			const updatedVersion = await listener.emit('prompt_user_for_version_action', {
+				options,
+				packageName,
+				actions: generateVersionActions(rawVersion, highestVersion, options.stripPrefixes),
+			});
 
-				if (updatedVersion !== rawVersion) {
-					updatedDependencyMap[packageName] = updatedVersion;
-					log?.(`Updated ${packageName} from ${rawVersion} to ${updatedVersion}.`);
-				} else {
-					log?.(`Left ${packageName} as ${rawVersion}.`);
-				}
-			} else {
-				log?.(`${packageName} is already ${highestVersion}.`);
+			if (updatedVersion !== rawVersion) {
+				updatedDependencyMap[packageName] = updatedVersion;
 			}
-		} else {
-			log?.('No versions available.');
+			listener.emit('dependency_processed', {
+				packageName,
+				version: {
+					old: rawVersion,
+					new: updatedVersion,
+				},
+			});
 		}
 	}
 

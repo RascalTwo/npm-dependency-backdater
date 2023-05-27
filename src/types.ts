@@ -1,3 +1,5 @@
+import type { Listener } from './events/BaseListener';
+
 export type LoggingFunction = (message: string) => void;
 
 export interface Options {
@@ -5,7 +7,7 @@ export interface Options {
 	interactive?: boolean;
 	allowPreRelease?: boolean;
 	dryRun?: boolean;
-	log?: LoggingFunction;
+	listener: Listener;
 }
 
 export interface DependencyMap {
@@ -17,4 +19,3 @@ export interface VersionMap {
 }
 
 export type VersionAction = [string, string];
-
