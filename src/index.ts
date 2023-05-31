@@ -4,39 +4,27 @@ import type { Options } from './types';
 import generateOptions from './generateOptions';
 import updatePackageVersions from './updatePackageVersions';
 
-export const POSSIBLE_EVENTS = ['missing_arguments', 'invalid_datetime', 'datetime_in_future', 'run'] as const;
-
 export default async function main(packageFilePath: string, datetimeArg: string, options: Options) {
 	const { listener } = options;
 	//listener.validate();
 
 	if (!packageFilePath || !datetimeArg) {
-		return listener.emit('missing_arguments', undefined);
+		return listener.handleMissingArguments();
 	}
 
 	let datetime = new Date(datetimeArg);
 	if (isNaN(datetime.getTime())) {
-		return listener.emit('invalid_datetime', datetimeArg);
+		return listener.handleInvalidDatetime(datetimeArg);
 	}
 	if (datetime.getTime() > Date.now()) {
-		datetime = listener.emit('datetime_in_future', datetime);
+		datetime = listener.handleDatetimeInFuture(datetime);
 	}
 
-	listener.emit('run', {
-		edge: 'start',
-		options,
-		packageFilePath,
-		datetime,
-	});
+	listener.handleRunStart(options, packageFilePath, datetime);
 
 	await updatePackageVersions(packageFilePath, datetime, options);
 
-	listener.emit('run', {
-		edge: 'finish',
-		options,
-		packageFilePath,
-		datetime,
-	});
+	listener.handleRunFinish(options, packageFilePath, datetime);
 }
 
 // istanbul ignore next

@@ -1,8 +1,10 @@
-import updateDependencies, { POSSIBLE_EVENTS } from './updateDependencies';
 import { generateMockListener } from './testHelpers';
+
 import generateVersionActions from './generateVersionActions';
 import getHighestVersionAtTime from './getHighestVersionAtTime';
 import getPackageVersionDates from './getPackageVersionDates';
+
+import updateDependencies from './updateDependencies';
 
 const generateVersionActionsMock = generateVersionActions as jest.MockedFunction<typeof generateVersionActions>;
 const getPackageVersionDatesMock = getPackageVersionDates as jest.MockedFunction<typeof getPackageVersionDates>;
@@ -21,7 +23,7 @@ describe('updateDependencies', () => {
 
 	const datetime = new Date('2022-01-01T00:00:00Z');
 
-	const { listener, handles } = generateMockListener(...POSSIBLE_EVENTS);
+	const listener = generateMockListener();
 
 	beforeEach(() => getPackageVersionDatesMock.mockResolvedValue([{}, datetime]));
 
@@ -36,37 +38,17 @@ describe('updateDependencies', () => {
 
 			await updateDependencies(dependencies, datetime, { listener });
 
-			expect(handles.getting_package_version_dates).toHaveBeenCalledWith({
-				edge: 'start',
-				packageName: 'dependency1',
-				datetime,
-				version: {
-					raw: '~1.0.0',
-					prefix: '~',
-					parsed: '1.0.0',
-				},
-			});
+			expect(listener.handleGettingPackageVersionDatesStart).toHaveBeenCalledWith('dependency1');
 			expect(getPackageVersionDates).toHaveBeenCalledWith('dependency1', datetime);
-			expect(handles.getting_package_version_dates).toHaveBeenCalledWith({
-				edge: 'finish',
-				packageName: 'dependency1',
+			expect(listener.handleGettingPackageVersionDatesFinish).toHaveBeenCalledWith(
+				'dependency1',
 				datetime,
-				version: {
-					raw: '~1.0.0',
-					prefix: '~',
-					parsed: '1.0.0',
-				},
-				cacheDate: datetime,
-				versions: dependency1Versions,
-			});
+				datetime,
+				dependency1Versions,
+			);
 			expect(getPackageVersionDates).toHaveBeenCalledWith('dependency2', datetime);
 			expect(getHighestVersionAtTime).toHaveBeenCalledWith(dependency1Versions, datetime, true);
-			expect(handles.calculated_highest_version).toHaveBeenCalledWith({
-				packageName: 'dependency1',
-				version: '1.0.0',
-				highestVersion: '1.0.0',
-				allowPreRelease: false,
-			});
+			expect(listener.handleCalculatedHighestVersion).toHaveBeenCalledWith('dependency1', '1.0.0', '1.0.0', false);
 			expect(getHighestVersionAtTime).toHaveBeenCalledWith(dependency2Versions, datetime, true);
 		});
 
@@ -86,21 +68,16 @@ describe('updateDependencies', () => {
 			.mockResolvedValueOnce([{ 1: '1' }, datetime])
 			.mockResolvedValueOnce([{ 2: '2' }, datetime]);
 		generateVersionActionsMock.mockReturnValueOnce([['verb', 'version']]);
-		handles.prompt_user_for_version_action.mockResolvedValueOnce('~1.1.0').mockResolvedValueOnce('2.1.0');
+		listener.handlePromptUserForVersionAction.mockResolvedValueOnce('~1.1.0').mockResolvedValueOnce('2.1.0');
 
 		const updatedDependencies = await updateDependencies(dependencies, datetime, { listener });
 
-		expect(handles.prompt_user_for_version_action).toHaveBeenCalledWith({
-			options: { listener },
-			packageName: 'dependency1',
-			actions: [['verb', 'version']],
-		});
-		expect(handles.dependency_processed).toHaveBeenCalledWith({
-			packageName: 'dependency1',
-			version: {
-				old: '~1.0.0',
-				new: '~1.1.0',
-			},
+		expect(listener.handlePromptUserForVersionAction).toHaveBeenCalledWith({ listener }, 'dependency1', [
+			['verb', 'version'],
+		]);
+		expect(listener.handleDependencyProcessed).toHaveBeenCalledWith('dependency1', {
+			old: '~1.0.0',
+			new: '~1.1.0',
 		});
 		expect(updatedDependencies).toEqual({
 			dependency1: '~1.1.0',
@@ -110,7 +87,7 @@ describe('updateDependencies', () => {
 
 	test('returns only updated versions', async () => {
 		getHighestVersionAtTimeMock.mockReturnValueOnce(null).mockReturnValueOnce('2.1.0');
-		handles.prompt_user_for_version_action.mockResolvedValueOnce('2.1.0');
+		listener.handlePromptUserForVersionAction.mockResolvedValueOnce('2.1.0');
 
 		const updatedDependencies = await updateDependencies(dependencies, datetime, { listener });
 
@@ -124,7 +101,7 @@ describe('updateDependencies', () => {
 			dependency1: '^1.0.0',
 		};
 		getHighestVersionAtTimeMock.mockReturnValueOnce('1.1.0').mockReturnValueOnce('2.1.0');
-		handles.prompt_user_for_version_action.mockResolvedValueOnce('1.1.0');
+		listener.handlePromptUserForVersionAction.mockResolvedValueOnce('1.1.0');
 
 		const updatedDependencies = await updateDependencies(dependencies, datetime, { listener, stripPrefixes: true });
 
@@ -142,7 +119,7 @@ describe('updateDependencies', () => {
 		beforeEach(() => getHighestVersionAtTimeMock.mockReturnValueOnce('1.1.0'));
 
 		test('calls generateVersionActions with correct args', async () => {
-			handles.prompt_user_for_version_action.mockResolvedValueOnce('');
+			listener.handlePromptUserForVersionAction.mockResolvedValueOnce('');
 
 			await updateDependencies(dependencies, datetime, options);
 

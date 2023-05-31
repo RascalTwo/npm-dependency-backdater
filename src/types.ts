@@ -1,4 +1,4 @@
-import type { Listener } from './events/BaseListener';
+import type { AllEventsListener } from './events/BaseListener';
 
 export type LoggingFunction = (message: string) => void;
 
@@ -7,7 +7,7 @@ export interface Options {
 	interactive?: boolean;
 	allowPreRelease?: boolean;
 	dryRun?: boolean;
-	listener: Listener;
+	listener: AllEventsListener;
 }
 
 export interface DependencyMap {

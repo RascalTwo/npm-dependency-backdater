@@ -1,16 +1,18 @@
-import main, { POSSIBLE_EVENTS } from '.';
 import { generateMockListener } from './testHelpers';
+import main from '.';
 import updatePackageVersions from './updatePackageVersions';
 
 const updatePackageVersionsMock = updatePackageVersions as jest.MockedFunction<typeof updatePackageVersions>;
 
 jest.mock('./updatePackageVersions');
+jest.mock('./events/BaseListener');
+jest.mock('./events/CLIListener');
 
 describe('main', () => {
 	const packageFilePath = '/path/to/package.json';
 	const datetimeArg = '2022-01-01T00:00:00Z';
 
-	const { listener, handles } = generateMockListener(...POSSIBLE_EVENTS);
+	const listener = generateMockListener();
 
 	test.each([
 		['packageFilePath', ['', datetimeArg]],
@@ -18,7 +20,7 @@ describe('main', () => {
 	] as const)('requires %s', async (_, args) => {
 		await main(args[0], args[1], { listener });
 
-		expect(handles.missing_arguments).toHaveBeenCalled();
+		expect(listener.handleMissingArguments).toHaveBeenCalled();
 		expect(updatePackageVersionsMock).not.toHaveBeenCalled();
 	});
 
@@ -35,7 +37,7 @@ describe('main', () => {
 
 		await main(packageFilePath, invalidDatetimeArg, { listener });
 
-		expect(handles.invalid_datetime).toHaveBeenCalledWith('abcd-de-fg');
+		expect(listener.handleInvalidDatetime).toHaveBeenCalledWith('abcd-de-fg');
 		expect(updatePackageVersionsMock).not.toHaveBeenCalled();
 	});
 
@@ -43,11 +45,11 @@ describe('main', () => {
 		const invalidDatetimeArg = '4000-01-01';
 
 		const correctedDatetime = new Date('2022-01-01T00:00:00Z');
-		handles.datetime_in_future.mockReturnValueOnce(correctedDatetime);
+		listener.handleDatetimeInFuture.mockReturnValueOnce(correctedDatetime);
 
 		await main(packageFilePath, invalidDatetimeArg, { listener });
 
-		expect(handles.datetime_in_future).toHaveBeenCalledWith(new Date(invalidDatetimeArg));
+		expect(listener.handleDatetimeInFuture).toHaveBeenCalledWith(new Date(invalidDatetimeArg));
 		expect(updatePackageVersionsMock).toHaveBeenCalledWith(packageFilePath, correctedDatetime, { listener });
 	});
 });
