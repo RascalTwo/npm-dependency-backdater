@@ -3,7 +3,7 @@ import CLIListener from './CLIListener';
 import { SUPPORTED_PREFIXES } from '../parseRawVersion';
 
 import { handleMakeChanges } from './commonHandlers';
-import promptUserForVersionAction from '../promptUserForVersionAction';
+import promptUserForVersionAction from '../utils/promptUserForVersionAction';
 
 const handleMakeChangesMock = handleMakeChanges as jest.MockedFunction<typeof handleMakeChanges>;
 const promptUserForVersionActionMock = promptUserForVersionAction as jest.MockedFunction<
@@ -11,7 +11,7 @@ const promptUserForVersionActionMock = promptUserForVersionAction as jest.Mocked
 >;
 
 jest.mock('./commonHandlers');
-jest.mock('../promptUserForVersionAction');
+jest.mock('../utils/promptUserForVersionAction');
 
 describe('CLIListener', () => {
 	const logMock = (console.log = jest.fn());
@@ -88,6 +88,14 @@ describe('CLIListener', () => {
 
 			expect(logMock).toHaveBeenCalledWith(`14 bytes of "${packageFilePath}" read.`);
 		});
+
+		it('properly pluralized byte', () => {
+			const packageFilePath = 'path/to/package.json';
+
+			CLIListener.handleReadingPackageFileFinish(packageFilePath, ' ');
+
+			expect(logMock).toHaveBeenCalledWith(`1 byte of "${packageFilePath}" read.`);
+		});
 	});
 
 	describe('handleDiscoveringDependencyMapStart', () => {
@@ -98,7 +106,6 @@ describe('CLIListener', () => {
 		});
 	});
 
-	// handleDiscoveringDependencyMapFinish
 	describe('handleDiscoveringDependencyMapFinish', () => {
 		it('should log the number of dependencies found', () => {
 			CLIListener.handleDiscoveringDependencyMapFinish('devDependencies', {
@@ -109,7 +116,7 @@ describe('CLIListener', () => {
 			expect(logMock).toHaveBeenCalledWith('2 "devDependencies" dependencies found.');
 		});
 
-		it('should dependency as singular when there is only one', () => {
+		it('should output dependency as singular when there is only one', () => {
 			CLIListener.handleDiscoveringDependencyMapFinish('devDependencies', { dependency1: '1.0.0' });
 
 			expect(logMock).toHaveBeenCalledWith('1 "devDependencies" dependency found.');
@@ -254,6 +261,12 @@ describe('CLIListener', () => {
 			CLIListener.handleDependencyMapProcessed('dependencies', { dependency1: '1.1.0' });
 
 			expect(logMock).toHaveBeenCalledWith('Updated 1 "dependencies" dependency.');
+		});
+
+		it('should log dependency as plural when multiple changes made', () => {
+			CLIListener.handleDependencyMapProcessed('devDependencies', { dependency1: '1.1.0', dependency2: '1.1.0' });
+
+			expect(logMock).toHaveBeenCalledWith('Updated 2 "devDependencies" dependencies.');
 		});
 	});
 

@@ -1,9 +1,9 @@
 import type { DependencyMap, Options, VersionAction, VersionMap } from '../types';
-import type { AllEventsListener } from './BaseListener';
 import BaseListener from './BaseListener';
 import { SUPPORTED_PREFIXES } from '../parseRawVersion';
 import { handleMakeChanges } from './commonHandlers';
-import promptUserForVersionAction from '../promptUserForVersionAction';
+import pluralizeNoun from '../utils/pluralizeNoun';
+import promptUserForVersionAction from '../utils/promptUserForVersionAction';
 
 export default {
 	...BaseListener,
@@ -44,7 +44,7 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 	},
 
 	handleReadingPackageFileFinish(packageFilePath: string, content: string) {
-		console.log(`${content.length} bytes of "${packageFilePath}" read.`);
+		console.log(`${content.length} ${pluralizeNoun('byte', content.length)} of "${packageFilePath}" read.`);
 	},
 
 	handleDiscoveringDependencyMapStart(map: 'dependencies' | 'devDependencies') {
@@ -61,8 +61,7 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 			return console.log(`No "${map}" dependencies found.`);
 		}
 
-		const word = count === 1 ? 'dependency' : 'dependencies';
-		console.log(`${count} "${map}" ${word} found.`);
+		console.log(`${count} "${map}" ${pluralizeNoun('dependency', count)} found.`);
 	},
 
 	handleGettingPackageVersionDatesStart(packageName: string): void {
@@ -77,7 +76,7 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 	): void {
 		const versionCount = Object.keys(versions).length;
 		console.log(
-			`Found ${versionCount} version${versionCount === 1 ? '' : 's'} for "${packageName}"${
+			`Found ${versionCount} ${pluralizeNoun('version', versionCount)} for "${packageName}"${
 				datetime === cacheDate ? ` (cached from ${cacheDate.toISOString()})` : ''
 			}.`,
 		);
@@ -127,8 +126,7 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 		if (!updateCount) {
 			console.log(`No changes made to "${map}".`);
 		} else {
-			const word = updateCount === 1 ? 'dependency' : 'dependencies';
-			console.log(`Updated ${updateCount} "${map}" ${word}.`);
+			console.log(`Updated ${updateCount} "${map}" ${pluralizeNoun('dependency', updateCount)}.`);
 		}
 	},
 

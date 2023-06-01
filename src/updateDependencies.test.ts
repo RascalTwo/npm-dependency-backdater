@@ -13,7 +13,7 @@ const getHighestVersionAtTimeMock = getHighestVersionAtTime as jest.MockedFuncti
 jest.mock('./generateVersionActions');
 jest.mock('./getHighestVersionAtTime');
 jest.mock('./getPackageVersionDates');
-jest.mock('./promptUserForVersionAction');
+jest.mock('./utils/promptUserForVersionAction');
 
 describe('updateDependencies', () => {
 	const dependencies = {

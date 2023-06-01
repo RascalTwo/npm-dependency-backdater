@@ -1,10 +1,10 @@
-import { loadCache, saveCache } from './cache';
+import { loadCache, saveCache } from './utils/cache';
 import fetchPackageVersionDates from './fetchPackageVersionDates';
 
 import getPackageVersionDates from './getPackageVersionDates';
 
 jest.mock('./fetchPackageVersionDates');
-jest.mock('./cache');
+jest.mock('./utils/cache');
 
 const loadVersionCache = loadCache as jest.MockedFunction<typeof loadCache>;
 const saveVersionCache = saveCache as jest.MockedFunction<typeof saveCache>;

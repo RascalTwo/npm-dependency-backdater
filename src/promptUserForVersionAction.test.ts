@@ -1,6 +1,6 @@
 import getEnumFromUser from './getEnumFromUser';
 
-import promptUserForVersionAction from './promptUserForVersionAction';
+import promptUserForVersionAction from './utils/promptUserForVersionAction';
 
 const getEnumFromUserMock = getEnumFromUser as jest.MockedFunction<typeof getEnumFromUser>;
 

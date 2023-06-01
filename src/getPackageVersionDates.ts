@@ -1,4 +1,4 @@
-import { loadCache, saveCache } from './cache';
+import { loadCache, saveCache } from './utils/cache';
 import type { VersionMap } from './types';
 import fetchPackageVersionDates from './fetchPackageVersionDates';
 
