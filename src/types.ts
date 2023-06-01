@@ -18,4 +18,10 @@ export interface VersionMap {
 	[version: string]: string;
 }
 
+export interface ParsedVersion {
+	raw: string;
+	prefix: string | null;
+	version: string;
+}
+
 export type VersionAction = [string, string];

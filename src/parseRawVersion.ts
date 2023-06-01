@@ -1,8 +1,16 @@
+import type { ParsedVersion } from './types';
+
 export const SUPPORTED_PREFIXES = ['>=', '<=', '>', '<', '~', '^'];
 
-export default function parseRawVersion(rawVersion: string): [string | null, string] {
-	const prefix = SUPPORTED_PREFIXES.find(prefix => rawVersion.startsWith(prefix));
-	if (!prefix) return [null, rawVersion];
+export default function parseRawVersion(raw: string): ParsedVersion {
+	const foundPrefix = SUPPORTED_PREFIXES.find(prefix => raw.startsWith(prefix));
 
-	return [prefix, rawVersion.slice(prefix.length)];
+	const prefix = foundPrefix ? raw.slice(0, foundPrefix.length) : null;
+	const version = foundPrefix ? raw.slice(foundPrefix.length) : raw;
+
+	return {
+		raw,
+		prefix,
+		version,
+	};
 }

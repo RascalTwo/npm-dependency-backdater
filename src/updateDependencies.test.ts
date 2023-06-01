@@ -123,7 +123,15 @@ describe('updateDependencies', () => {
 
 			await updateDependencies(dependencies, datetime, options);
 
-			expect(generateVersionActionsMock).toHaveBeenCalledWith('^1.0.0', '1.1.0', undefined);
+			expect(generateVersionActionsMock).toHaveBeenCalledWith(
+				{
+					raw: '^1.0.0',
+					prefix: '^',
+					version: '1.0.0',
+				},
+				'1.1.0',
+				undefined,
+			);
 		});
 	});
 });

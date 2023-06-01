@@ -1,16 +1,17 @@
-import type { VersionAction } from './types';
-import parseRawVersion from './parseRawVersion';
+import type { ParsedVersion, VersionAction } from './types';
 
-export default function generateVersionActions(rawVersion: string, proposedVersion: string, stripPrefixes?: boolean) {
-	const semverPrefix = parseRawVersion(rawVersion)[0];
-
+export default function generateVersionActions(
+	version: ParsedVersion,
+	proposedVersion: string,
+	stripPrefixes?: boolean,
+) {
 	const actions: VersionAction[] = [
-		['Leave as', rawVersion],
+		['Leave as', version.raw],
 		['Change to', proposedVersion],
 	] as [string, string][];
 
-	if (semverPrefix) {
-		actions.splice(stripPrefixes ? 2 : 1, 0, ['Change to', `${semverPrefix}${proposedVersion}`]);
+	if (version.prefix) {
+		actions.splice(stripPrefixes ? 2 : 1, 0, ['Change to', `${version.prefix}${proposedVersion}`]);
 	}
 
 	return actions;

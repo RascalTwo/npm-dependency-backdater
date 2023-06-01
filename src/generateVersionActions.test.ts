@@ -8,21 +8,31 @@ jest.mock('./parseRawVersion');
 
 describe('generateVersionActions', () => {
 	it('should return the correct actions', () => {
-		parseRawVersionMock.mockReturnValueOnce(['^', '1.0.0']);
-
-		const result = generateVersionActions('1.0.0', '2.0.0');
+		const result = generateVersionActions(
+			{
+				raw: '^1.0.0',
+				prefix: '^',
+				version: '1.0.0',
+			},
+			'2.0.0',
+		);
 
 		expect(result).toEqual([
-			['Leave as', '1.0.0'],
+			['Leave as', '^1.0.0'],
 			['Change to', '^2.0.0'],
 			['Change to', '2.0.0'],
 		]);
 	});
 
 	it('should return the correct actions when there is no semver prefix', () => {
-		parseRawVersionMock.mockReturnValueOnce([null, '1.0.0']);
-
-		const result = generateVersionActions('1.0.0', '2.0.0');
+		const result = generateVersionActions(
+			{
+				raw: '1.0.0',
+				prefix: null,
+				version: '1.0.0',
+			},
+			'2.0.0',
+		);
 
 		expect(result).toEqual([
 			['Leave as', '1.0.0'],
@@ -31,12 +41,18 @@ describe('generateVersionActions', () => {
 	});
 
 	it('should return the correct actions when stripPrefixes is false', () => {
-		parseRawVersionMock.mockReturnValueOnce(['^', '1.0.0']);
-
-		const result = generateVersionActions('1.0.0', '2.0.0', true);
+		const result = generateVersionActions(
+			{
+				raw: '^1.0.0',
+				prefix: '^',
+				version: '1.0.0',
+			},
+			'2.0.0',
+			true,
+		);
 
 		expect(result).toEqual([
-			['Leave as', '1.0.0'],
+			['Leave as', '^1.0.0'],
 			['Change to', '2.0.0'],
 			['Change to', '^2.0.0'],
 		]);
