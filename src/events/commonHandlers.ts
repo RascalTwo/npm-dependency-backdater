@@ -18,7 +18,7 @@ export async function handleMakeChanges(
 			}),
 		);
 
-	if (logging) console.log(`Writing changes to ${packageFilePath}...`);
+	if (logging) console.log(`Writing changes to "${packageFilePath}"...`);
 	await fs.promises.writeFile(packageFilePath, JSON.stringify(packageJson.new, undefined, 2));
-	if (logging) console.log(`Changes written to ${packageFilePath}.`);
+	if (logging) console.log(`Changes written to "${packageFilePath}".`);
 }

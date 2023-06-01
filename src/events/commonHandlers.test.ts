@@ -52,8 +52,8 @@ describe('handleMakeChanges', () => {
 
 		await handleMakeChanges(true, 'filepath', packageJson, dryRun);
 
-		expect(logMock).toHaveBeenCalledWith('Writing changes to filepath...');
+		expect(logMock).toHaveBeenCalledWith('Writing changes to "filepath"...');
 		expect(fs.promises.writeFile).toHaveBeenCalledWith('filepath', JSON.stringify(packageJson.new, undefined, 2));
-		expect(logMock).toHaveBeenCalledWith('Changes written to filepath.');
+		expect(logMock).toHaveBeenCalledWith('Changes written to "filepath".');
 	});
 });

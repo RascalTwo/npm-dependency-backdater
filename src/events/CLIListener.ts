@@ -28,23 +28,23 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 
 	handleDatetimeInFuture(datetime: Date) {
 		console.warn(
-			`Warning: The provided datetime (${datetime.toISOString()}) is in the future. Using the current datetime instead.`,
+			`Warning: The provided datetime - ${datetime.toISOString()} - is in the future. Using the current datetime instead.`,
 		);
 		return new Date();
 	},
 
 	handleRunStart(options: Options, packageFilePath: string, datetime: Date) {
 		console.log(
-			`Attempting to update package versions in ${packageFilePath} to their latest versions as of ${datetime.toISOString()}...`,
+			`Attempting to update package versions in "${packageFilePath}" to their latest versions as of ${datetime.toISOString()}...`,
 		);
 	},
 
 	handleReadingPackageFileStart(packageFilePath: string) {
-		console.log(`Reading package file ${packageFilePath}...`);
+		console.log(`Reading package file "${packageFilePath}"...`);
 	},
 
 	handleReadingPackageFileFinish(packageFilePath: string, content: string) {
-		console.log(`${content.length} bytes of ${packageFilePath} read.`);
+		console.log(`${content.length} bytes of "${packageFilePath}" read.`);
 	},
 
 	handleDiscoveringDependencyMapStart(map: 'dependencies' | 'devDependencies') {
@@ -77,8 +77,8 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 	): void {
 		const versionCount = Object.keys(versions).length;
 		console.log(
-			`Found ${versionCount} version${versionCount === 1 ? '' : 's'} for ${packageName}${
-				datetime === cacheDate ? ` (cached from ${cacheDate.toLocaleDateString()})` : ''
+			`Found ${versionCount} version${versionCount === 1 ? '' : 's'} for "${packageName}"${
+				datetime === cacheDate ? ` (cached from ${cacheDate.toISOString()})` : ''
 			}.`,
 		);
 	},
@@ -94,12 +94,12 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 		}
 
 		console.log(
-			`Highest version of ${packageName} available is ${highestVersion}${
+			`Highest version of "${packageName}" available is "${highestVersion}"${
 				allowPreRelease ? ' (including pre-releases)' : ''
 			}.`,
 		);
 		if (highestVersion === version) {
-			return console.log(`${packageName} is already ${highestVersion}.`);
+			return console.log(`"${packageName}" is already "${highestVersion}".`);
 		}
 	},
 
@@ -116,18 +116,19 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 
 	handleDependencyProcessed(packageName: string, version: { old: string; new: string }): void {
 		if (version.old !== version.new) {
-			console.log(`Updated ${packageName} from ${version.old} to ${version.new}.`);
+			console.log(`Updated "${packageName}" from "${version.old}" to "${version.new}".`);
 		} else {
-			console.log(`Left ${packageName} as ${version.old}.`);
+			console.log(`Left "${packageName}" as "${version.old}".`);
 		}
 	},
 
 	handleDependencyMapProcessed(map: 'dependencies' | 'devDependencies', updates: DependencyMap): void {
 		const updateCount = Object.keys(updates).length;
 		if (!updateCount) {
-			console.log(`No changes made to ${map}.`);
+			console.log(`No changes made to "${map}".`);
 		} else {
-			console.log(`Updated ${updateCount} ${map}.`);
+			const word = updateCount === 1 ? 'dependency' : 'dependencies';
+			console.log(`Updated ${updateCount} "${map}" ${word}.`);
 		}
 	},
 
@@ -138,4 +139,4 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 	},
 
 	handleMakeChanges: handleMakeChanges.bind(null, true),
-} as AllEventsListener;
+};

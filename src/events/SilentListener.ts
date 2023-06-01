@@ -15,4 +15,4 @@ export default {
 	handlePromptUserForVersionAction: CLIListener.handlePromptUserForVersionAction,
 
 	handleMakeChanges: handleMakeChanges.bind(null, false),
-} as AllEventsListener;
+};
