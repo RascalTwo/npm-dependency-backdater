@@ -140,10 +140,10 @@ describe('CLIListener', () => {
 	describe('handleGettingPackageVersionDatesFinish', () => {
 		it('should log the number of versions found', () => {
 			const datetime = new Date();
-			const cacheDate = new Date();
+			const cacheDate = datetime;
 			const versions = {
-				'1.0.0': new Date().toISOString(),
-				'1.1.0': new Date().toISOString(),
+				'1.0.0': datetime.toISOString(),
+				'1.1.0': datetime.toISOString(),
 			};
 
 			CLIListener.handleGettingPackageVersionDatesFinish('dependency1', datetime, cacheDate, versions);
@@ -153,9 +153,9 @@ describe('CLIListener', () => {
 
 		it('version has no s when only one was found', () => {
 			const datetime = new Date();
-			const cacheDate = new Date();
+			const cacheDate = datetime;
 			const versions = {
-				'1.0.0': new Date().toISOString(),
+				'1.0.0': datetime.toISOString(),
 			};
 
 			CLIListener.handleGettingPackageVersionDatesFinish('dependency1', datetime, cacheDate, versions);
@@ -165,15 +165,15 @@ describe('CLIListener', () => {
 
 		it('indicated when from cache', () => {
 			const datetime = new Date();
-			const cacheDate = datetime;
+			const cacheDate = new Date();
 			const versions = {
-				'1.0.0': datetime.toISOString(),
+				'1.0.0': new Date().toISOString(),
 			};
 
 			CLIListener.handleGettingPackageVersionDatesFinish('dependency1', datetime, cacheDate, versions);
 
 			expect(logMock).toHaveBeenCalledWith(
-				`Found 1 version for "dependency1" (cached from ${cacheDate.toISOString()}).`,
+				`Found 1 version for "dependency1". (cached from ${cacheDate.toISOString()})`,
 			);
 		});
 	});
@@ -201,7 +201,7 @@ describe('CLIListener', () => {
 			CLIListener.handleCalculatedHighestVersion('dependency1', '1.1.0', '1.1.0', true);
 
 			expect(logMock).toHaveBeenCalledWith(
-				'Highest version of "dependency1" available is "1.1.0" (including pre-releases).',
+				'Highest version of "dependency1" available is "1.1.0". (including pre-releases)',
 			);
 		});
 	});

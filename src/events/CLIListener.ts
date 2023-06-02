@@ -23,7 +23,7 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 	},
 
 	handleInvalidDatetime(datetimeArg: string) {
-		console.error(`Expected a valid datetime (YYYY-MM-DDTHH:mm:ssZ) but received "${datetimeArg}"`);
+		console.error(`Expected a valid datetime (YYYY-MM-DDTHH:mm:ssZ) but received "${datetimeArg}".`);
 	},
 
 	handleDatetimeInFuture(datetime: Date) {
@@ -76,9 +76,9 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 	): void {
 		const versionCount = Object.keys(versions).length;
 		console.log(
-			`Found ${versionCount} ${pluralizeNoun('version', versionCount)} for "${packageName}"${
-				datetime === cacheDate ? ` (cached from ${cacheDate.toISOString()})` : ''
-			}.`,
+			`Found ${versionCount} ${pluralizeNoun('version', versionCount)} for "${packageName}".${
+				datetime !== cacheDate ? ` (cached from ${cacheDate.toISOString()})` : ''
+			}`,
 		);
 	},
 
@@ -93,9 +93,9 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 		}
 
 		console.log(
-			`Highest version of "${packageName}" available is "${highestVersion}"${
+			`Highest version of "${packageName}" available is "${highestVersion}".${
 				allowPreRelease ? ' (including pre-releases)' : ''
-			}.`,
+			}`,
 		);
 		if (highestVersion === version) {
 			return console.log(`"${packageName}" is already "${highestVersion}".`);
