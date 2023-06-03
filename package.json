@@ -10,6 +10,7 @@
     "prettier": "prettier src",
     "format": "npm run prettier -- --check",
     "format:fix": "npm run format -- --write",
+    "typecheck": "tsc --noEmit",
     "build": "tsc --project tsconfig.build.json",
     "prepare": "node -e \"try { require('husky').install() } catch (e) {if (e.code !== 'MODULE_NOT_FOUND') throw e}\"",
     "postinstall": "npm run build"
