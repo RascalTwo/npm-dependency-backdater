@@ -1,7 +1,8 @@
-import parseRawVersion, { SUPPORTED_PREFIXES } from './parseRawVersion';
+import { SUPPORTED_VERSION_PREFIXES } from './constants';
+import parseRawVersion from './parseRawVersion';
 
 describe('parseRawVersion', () => {
-	test.each(SUPPORTED_PREFIXES)('should parse %s', prefix => {
+	test.each(SUPPORTED_VERSION_PREFIXES)('should parse %s', prefix => {
 		const raw = `${prefix}1.2.3`;
 
 		const result = parseRawVersion(raw);

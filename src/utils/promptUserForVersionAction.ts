@@ -1,5 +1,5 @@
 import type { VersionAction } from '../types';
-import getEnumFromUser from '../getEnumFromUser';
+import getEnumFromUser from './getEnumFromUser';
 
 export default async function promptUserForVersionAction(
 	dependency: string,

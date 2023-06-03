@@ -1,6 +1,6 @@
-import type { DependencyMap, Options, VersionAction, VersionMap } from '../types';
+import type { DependencyMap, DependencyType, Options, VersionAction, VersionMap } from '../types';
 import BaseListener from './BaseListener';
-import { SUPPORTED_PREFIXES } from '../parseRawVersion';
+import { SUPPORTED_VERSION_PREFIXES } from '../constants';
 import { handleMakeChanges } from './commonHandlers';
 import pluralizeNoun from '../utils/pluralizeNoun';
 import promptUserForVersionAction from '../utils/promptUserForVersionAction';
@@ -15,7 +15,7 @@ package.json location: The location of the package.json file to update
 datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 
 --silent: Whether to suppress logging
---strip-prefixes: Whether to strip the (${SUPPORTED_PREFIXES.join(', ')}) prefixes from the updated versions
+--strip-prefixes: Whether to strip the (${SUPPORTED_VERSION_PREFIXES.join(', ')}) prefixes from the updated versions
 --interactive: Whether to prompt the user before updating each package version
 --allow-pre-release: Whether to allow the latest version to be a pre-release version (e.g. 1.0.0-alpha.1)
 --dry-run: Whether to log the changes that would be made without actually making them
@@ -47,14 +47,11 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 		console.log(`${content.length} ${pluralizeNoun('byte', content.length)} of "${packageFilePath}" read.`);
 	},
 
-	handleDiscoveringDependencyMapStart(map: 'dependencies' | 'devDependencies') {
+	handleDiscoveringDependencyMapStart(map: DependencyType) {
 		console.log(`Discovering "${map}" dependencies...`);
 	},
 
-	handleDiscoveringDependencyMapFinish(
-		map: 'dependencies' | 'devDependencies',
-		dependencyMap: DependencyMap = {},
-	): void {
+	handleDiscoveringDependencyMapFinish(map: DependencyType, dependencyMap: DependencyMap = {}): void {
 		const count = Object.keys(dependencyMap).length;
 
 		if (!count) {
@@ -121,7 +118,7 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 		}
 	},
 
-	handleDependencyMapProcessed(map: 'dependencies' | 'devDependencies', updates: DependencyMap): void {
+	handleDependencyMapProcessed(map: DependencyType, updates: DependencyMap): void {
 		const updateCount = Object.keys(updates).length;
 		if (!updateCount) {
 			console.log(`No changes made to "${map}".`);

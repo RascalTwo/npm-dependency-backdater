@@ -1,5 +1,6 @@
-import fs from 'fs';
+import { DEPENDENCY_TYPES } from './constants';
 
+import fs from 'fs';
 import { generateMockListener } from './testHelpers';
 
 import updateDependencies from './updateDependencies';
@@ -20,7 +21,7 @@ describe('updatePackageVersions', () => {
 	const datetime = new Date('2022-01-01T00:00:00Z');
 	const listener = generateMockListener();
 
-	test('updates dependencies and devDependencies', async () => {
+	test('updates all dependency types', async () => {
 		const packageJson = {
 			dependencies: {
 				dependency1: '1.0.0',
@@ -29,6 +30,14 @@ describe('updatePackageVersions', () => {
 			devDependencies: {
 				devDependency1: '1.0.0',
 				devDependency2: '2.0.0',
+			},
+			peerDependencies: {
+				peerDependency1: '1.0.0',
+				peerDependency2: '2.0.0',
+			},
+			optionalDependencies: {
+				optionalDependency1: '1.0.0',
+				optionalDependency2: '2.0.0',
 			},
 		};
 		const updatedPackageJson = {
@@ -40,11 +49,21 @@ describe('updatePackageVersions', () => {
 				devDependency1: '0.9.0',
 				devDependency2: '1.9.0',
 			},
+			peerDependencies: {
+				peerDependency1: '1.0.0',
+				peerDependency2: '2.0.0',
+			},
+			optionalDependencies: {
+				optionalDependency1: '1.0.0',
+				optionalDependency2: '2.0.0',
+			},
 		};
 		jest.spyOn(fs.promises, 'readFile').mockResolvedValueOnce(JSON.stringify(packageJson));
 		updateDependenciesMock
 			.mockResolvedValueOnce(updatedPackageJson.dependencies)
-			.mockResolvedValueOnce(updatedPackageJson.devDependencies);
+			.mockResolvedValueOnce(updatedPackageJson.devDependencies)
+			.mockResolvedValueOnce(updatedPackageJson.peerDependencies)
+			.mockResolvedValueOnce(updatedPackageJson.optionalDependencies);
 
 		await updatePackageVersions(packageFilePath, datetime, { listener });
 
@@ -75,11 +94,11 @@ describe('updatePackageVersions', () => {
 		await updatePackageVersions(packageFilePath, datetime, { listener });
 
 		expect(fs.promises.readFile).toHaveBeenCalledWith(packageFilePath, 'utf8');
-		expect(listener.handleDiscoveringDependencyMapStart).toHaveBeenCalledWith('dependencies');
-		expect(listener.handleDiscoveringDependencyMapFinish).toHaveBeenCalledWith('dependencies', undefined);
-		expect(listener.handleDependencyMapProcessed).not.toHaveBeenCalled();
-		expect(listener.handleDiscoveringDependencyMapStart).toHaveBeenCalledWith('devDependencies');
-		expect(listener.handleDiscoveringDependencyMapFinish).toHaveBeenCalledWith('devDependencies', undefined);
+		for (const dependencyType of DEPENDENCY_TYPES) {
+			expect(listener.handleDiscoveringDependencyMapStart).toHaveBeenCalledWith(dependencyType);
+			expect(listener.handleDiscoveringDependencyMapFinish).toHaveBeenCalledWith(dependencyType, undefined);
+			expect(listener.handleDependencyMapProcessed).not.toHaveBeenCalled();
+		}
 		expect(listener.handleChangesMade).toHaveBeenCalledWith(false);
 		expect(listener.handleMakeChanges).not.toHaveBeenCalled();
 	});

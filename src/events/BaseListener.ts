@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-empty-function */
-import type { DependencyMap, Options, VersionAction, VersionMap } from '../types';
+import type { DependencyMap, DependencyType, Options, VersionAction, VersionMap } from '../types';
 
 const OptionalEvents = {
 	handleMissingArguments(): void {},
@@ -9,11 +9,8 @@ const OptionalEvents = {
 	handleRunFinish(options: Options, packageFilePath: string, datetime: Date): void {},
 	handleReadingPackageFileStart(packageFilePath: string): void {},
 	handleReadingPackageFileFinish(packageFilePath: string, content: string): void {},
-	handleDiscoveringDependencyMapStart(map: 'dependencies' | 'devDependencies'): void {},
-	handleDiscoveringDependencyMapFinish(
-		map: 'dependencies' | 'devDependencies',
-		dependencyMap?: DependencyMap | undefined,
-	): void {},
+	handleDiscoveringDependencyMapStart(map: DependencyType): void {},
+	handleDiscoveringDependencyMapFinish(map: DependencyType, dependencyMap?: DependencyMap | undefined): void {},
 	handleGettingPackageVersionDatesStart(packageName: string): void {},
 	handleGettingPackageVersionDatesFinish(
 		packageName: string,
@@ -28,7 +25,7 @@ const OptionalEvents = {
 		allowPreRelease: boolean,
 	): void {},
 	handleDependencyProcessed(packageName: string, version: { old: string; new: string }): void {},
-	handleDependencyMapProcessed(map: 'dependencies' | 'devDependencies', updates: DependencyMap): void {},
+	handleDependencyMapProcessed(map: DependencyType, updates: DependencyMap): void {},
 	handleChangesMade(changesMade: boolean): void {},
 };
 

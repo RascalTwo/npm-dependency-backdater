@@ -1,4 +1,5 @@
-import type { Options } from './types';
+import type { DependencyMap, DependencyType, Options } from './types';
+import { DEPENDENCY_TYPES } from './constants';
 
 import fs from 'fs';
 import updateDependencies from './updateDependencies';
@@ -10,11 +11,11 @@ export default async function updatePackageVersions(packageFilePath: string, dat
 	const packageJsonString = await fs.promises.readFile(packageFilePath, 'utf8');
 	listener.handleReadingPackageFileFinish(packageFilePath, packageJsonString);
 
-	const packageJson = JSON.parse(packageJsonString);
+	const packageJson = JSON.parse(packageJsonString) as Record<DependencyType, DependencyMap>;
 	const oldPackageJson = JSON.parse(JSON.stringify(packageJson));
 
 	let changesMade = false;
-	for (const key of ['dependencies', 'devDependencies'] as const) {
+	for (const key of DEPENDENCY_TYPES) {
 		listener.handleDiscoveringDependencyMapStart(key);
 		const dependencyMap = packageJson[key];
 		listener.handleDiscoveringDependencyMapFinish(key, dependencyMap);

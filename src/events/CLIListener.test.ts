@@ -1,6 +1,6 @@
 import type { Options, VersionAction } from '../types';
 import CLIListener from './CLIListener';
-import { SUPPORTED_PREFIXES } from '../parseRawVersion';
+import { SUPPORTED_VERSION_PREFIXES } from '../constants';
 
 import { handleMakeChanges } from './commonHandlers';
 import promptUserForVersionAction from '../utils/promptUserForVersionAction';
@@ -29,7 +29,7 @@ describe('CLIListener', () => {
 			CLIListener.handleMissingArguments();
 
 			expect(errorMock).toHaveBeenCalledWith(expect.stringContaining('Usage: npm-dependency-backdater'));
-			expect(errorMock).toHaveBeenCalledWith(expect.stringContaining(SUPPORTED_PREFIXES.join(', ')));
+			expect(errorMock).toHaveBeenCalledWith(expect.stringContaining(SUPPORTED_VERSION_PREFIXES.join(', ')));
 		});
 	});
 

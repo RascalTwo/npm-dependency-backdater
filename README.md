@@ -1,6 +1,6 @@
 # NPM Dependency Backdater
 
-![package version badge](https://img.shields.io/badge/npm--dependency--backdater-v2.0.3-blue) ![code coverage badge](https://img.shields.io/badge/coverage-100%25-lime)
+![package version badge](https://img.shields.io/badge/npm--dependency--backdater-v2.1.0-blue) ![code coverage badge](https://img.shields.io/badge/coverage-100%25-lime)
 
 A tool to update NPM dependencies to the latest version available at a specified date.
 

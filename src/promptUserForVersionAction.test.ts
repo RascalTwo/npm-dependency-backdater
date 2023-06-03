@@ -1,10 +1,10 @@
-import getEnumFromUser from './getEnumFromUser';
+import getEnumFromUser from './utils/getEnumFromUser';
 
 import promptUserForVersionAction from './utils/promptUserForVersionAction';
 
 const getEnumFromUserMock = getEnumFromUser as jest.MockedFunction<typeof getEnumFromUser>;
 
-jest.mock('./getEnumFromUser');
+jest.mock('./utils/getEnumFromUser');
 
 describe('promptUserForVersionAction', () => {
 	it('should return the chosen value', async () => {

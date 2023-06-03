@@ -1,4 +1,5 @@
 import type { AllEventsListener } from './events/BaseListener';
+import type { DEPENDENCY_TYPES } from './constants';
 
 export type LoggingFunction = (message: string) => void;
 
@@ -23,5 +24,7 @@ export interface ParsedVersion {
 	prefix: string | null;
 	version: string;
 }
+
+export type DependencyType = (typeof DEPENDENCY_TYPES)[number];
 
 export type VersionAction = [string, string];
