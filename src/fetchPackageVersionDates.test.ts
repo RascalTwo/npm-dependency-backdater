@@ -14,16 +14,7 @@ describe('fetchPackageVersionDates', () => {
 		return mockResponse;
 	};
 
-	test('calls the npm registry with the correct package name', async () => {
-		const mockResponse = generateMockJSONResponse({ time: {} });
-		fetchMock.mockResolvedValue(mockResponse);
-
-		await fetchPackageVersionDates(packageName);
-
-		expect(fetch).toHaveBeenCalledWith(`https://registry.npmjs.org/${packageName}`);
-	});
-
-	test('fetches and returns the version dates', async () => {
+	test('makes request to NPM registry and returns version dates', async () => {
 		const expectedVersions = {
 			'1.0.0': '2022-01-01T00:00:00Z',
 			'2.0.0': '2022-02-01T00:00:00Z',
@@ -33,10 +24,11 @@ describe('fetchPackageVersionDates', () => {
 
 		const result = await fetchPackageVersionDates(packageName);
 
+		expect(fetch).toHaveBeenCalledWith(`https://registry.npmjs.org/${packageName}`);
 		expect(result).toEqual(expectedVersions);
 	});
 
-	test('handles fetch error', async () => {
+	test('raises network errors', async () => {
 		const mockError = new Error('Fetch error');
 		fetchMock.mockRejectedValue(mockError);
 

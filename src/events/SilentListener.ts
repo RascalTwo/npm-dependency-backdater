@@ -1,4 +1,3 @@
-import type { AllEventsListener } from './BaseListener';
 import BaseListener from './BaseListener';
 import CLIListener from './CLIListener';
 import { handleMakeChanges } from './commonHandlers';

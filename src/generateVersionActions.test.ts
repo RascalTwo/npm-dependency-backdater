@@ -1,13 +1,7 @@
 import generateVersionActions from './generateVersionActions';
 
-import parseRawVersion from './parseRawVersion';
-
-const parseRawVersionMock = parseRawVersion as jest.MockedFunction<typeof parseRawVersion>;
-
-jest.mock('./parseRawVersion');
-
 describe('generateVersionActions', () => {
-	it('should return the correct actions', () => {
+	test('generated actions with prefix', () => {
 		const result = generateVersionActions(
 			{
 				raw: '^1.0.0',
@@ -24,7 +18,7 @@ describe('generateVersionActions', () => {
 		]);
 	});
 
-	it('should return the correct actions when there is no semver prefix', () => {
+	test('generated actions without prefix', () => {
 		const result = generateVersionActions(
 			{
 				raw: '1.0.0',
@@ -40,7 +34,7 @@ describe('generateVersionActions', () => {
 		]);
 	});
 
-	it('should return the correct actions when stripPrefixes is false', () => {
+	test('preserves prefix in generated actions when stripPrefixes is true', () => {
 		const result = generateVersionActions(
 			{
 				raw: '^1.0.0',

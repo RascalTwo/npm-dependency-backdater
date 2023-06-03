@@ -62,7 +62,7 @@ describe('updateDependencies', () => {
 		});
 	});
 
-	test('returns updated dependencies', async () => {
+	test('updated dependency map is returned', async () => {
 		getHighestVersionAtTimeMock.mockReturnValueOnce('1.1.0').mockReturnValueOnce('2.1.0');
 		getPackageVersionDatesMock
 			.mockResolvedValueOnce([{ 1: '1' }, datetime])
@@ -85,7 +85,7 @@ describe('updateDependencies', () => {
 		});
 	});
 
-	test('returns only updated versions', async () => {
+	test('only updated versions are in returned map', async () => {
 		getHighestVersionAtTimeMock.mockReturnValueOnce(null).mockReturnValueOnce('2.1.0');
 		listener.handlePromptUserForVersionAction.mockResolvedValueOnce('2.1.0');
 
@@ -96,7 +96,7 @@ describe('updateDependencies', () => {
 		});
 	});
 
-	test('strips semver prefixes', async () => {
+	test('semver prefixes are stripped when stripPrefixes is true', async () => {
 		const dependencies = {
 			dependency1: '^1.0.0',
 		};
@@ -118,7 +118,7 @@ describe('updateDependencies', () => {
 
 		beforeEach(() => getHighestVersionAtTimeMock.mockReturnValueOnce('1.1.0'));
 
-		test('calls generateVersionActions with correct args', async () => {
+		test('calls generateVersionActions with correct arguments', async () => {
 			listener.handlePromptUserForVersionAction.mockResolvedValueOnce('');
 
 			await updateDependencies(dependencies, datetime, options);

@@ -12,11 +12,11 @@ describe('generateOptions', () => {
 		['--interactive', { ...withoutSilent, interactive: true }],
 		['--allow-pre-release', { ...withoutSilent, allowPreRelease: true }],
 		['--dry-run', { ...withoutSilent, dryRun: true }],
-	])('%s', (arg, expectedOptions) => {
+	])('"%s" flag', (arg, expectedOptions) => {
 		expect(generateOptions([arg])).toMatchObject(expectedOptions);
 	});
 
-	test('everything', () => {
+	test('everything all at once works', () => {
 		expect(
 			generateOptions(['--silent', '--strip-prefixes', '--interactive', '--allow-pre-release', '--dry-run']),
 		).toMatchObject({

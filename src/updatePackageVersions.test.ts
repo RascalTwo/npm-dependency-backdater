@@ -88,7 +88,7 @@ describe('updatePackageVersions', () => {
 		);
 	});
 
-	test("'make_changes' isn't emitted when there are no changes made", async () => {
+	test("listen.handleMakeChanges isn't called when there are no changes made", async () => {
 		jest.spyOn(fs.promises, 'readFile').mockResolvedValueOnce(JSON.stringify({}));
 
 		await updatePackageVersions(packageFilePath, datetime, { listener });
@@ -103,7 +103,7 @@ describe('updatePackageVersions', () => {
 		expect(listener.handleMakeChanges).not.toHaveBeenCalled();
 	});
 
-	test('dry run passed to make_changes', async () => {
+	test('dry run passed to listener.handleMakeChanges', async () => {
 		const oldPackageJson = {
 			dependencies: {
 				dependency1: '1.0.0',

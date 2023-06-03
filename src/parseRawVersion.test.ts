@@ -2,7 +2,7 @@ import { SUPPORTED_VERSION_PREFIXES } from './constants';
 import parseRawVersion from './parseRawVersion';
 
 describe('parseRawVersion', () => {
-	test.each(SUPPORTED_VERSION_PREFIXES)('should parse %s', prefix => {
+	test.each(SUPPORTED_VERSION_PREFIXES)('supports "%s" prefix', prefix => {
 		const raw = `${prefix}1.2.3`;
 
 		const result = parseRawVersion(raw);
@@ -14,7 +14,7 @@ describe('parseRawVersion', () => {
 		});
 	});
 
-	test('should not handle unsupported prefixes', () => {
+	test("version is raw when there's no prefix", () => {
 		const raw = '1.2.3';
 
 		const result = parseRawVersion(raw);
@@ -26,7 +26,7 @@ describe('parseRawVersion', () => {
 		});
 	});
 
-	test('should not handle unsupported prefixes', () => {
+	test('unsupported prefixes are ignored', () => {
 		const raw = 'random1.2.3';
 
 		const result = parseRawVersion(raw);

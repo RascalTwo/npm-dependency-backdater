@@ -10,7 +10,7 @@ describe('getHighestVersionAtTime', () => {
 		'3.1.0': '2022-05-01T00:00:00Z',
 	};
 
-	test('returns the highest valid semantic version', () => {
+	test('highest valid semantic version is returned', () => {
 		const datetime = new Date('2022-03-15T00:00:00Z');
 
 		const result = getHighestVersionAtTime(versions, datetime, true);
@@ -18,7 +18,7 @@ describe('getHighestVersionAtTime', () => {
 		expect(result).toBe('2.1.0');
 	});
 
-	test('returns when date is an exact match', () => {
+	test('handles when date is identical', () => {
 		const datetime = new Date('2022-01-01T00:00:00Z');
 
 		const result = getHighestVersionAtTime(versions, datetime, true);
@@ -26,7 +26,7 @@ describe('getHighestVersionAtTime', () => {
 		expect(result).toBe('1.0.0');
 	});
 
-	test('returns null when no valid versions are found', () => {
+	test('null is returned when there are no valid versions', () => {
 		const datetime = new Date('2021-01-01T00:00:00Z');
 
 		const result = getHighestVersionAtTime(versions, datetime, true);
@@ -34,7 +34,7 @@ describe('getHighestVersionAtTime', () => {
 		expect(result).toBeNull();
 	});
 
-	test('returns versions with suffixed when strict is disabled', () => {
+	test('suffixed version can be returned when enabled', () => {
 		const datetime = new Date('2021-09-01T00:00:00Z');
 
 		const result = getHighestVersionAtTime(versions, datetime, false);

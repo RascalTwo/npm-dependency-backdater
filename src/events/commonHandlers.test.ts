@@ -16,10 +16,12 @@ jest.mock('fs', () => ({
 
 describe('handleMakeChanges', () => {
 	const logMock = (console.log = jest.fn());
+
 	beforeEach(() => {
 		logMock.mockClear();
 	});
-	it('should log the diff when dryRun is true', async () => {
+
+	test('diff is logged when dryRun is true', async () => {
 		const packageJson = { old: {}, new: {} };
 		const dryRun = true;
 		diffMock.mockReturnValueOnce('diff');
@@ -35,7 +37,7 @@ describe('handleMakeChanges', () => {
 		expect(logMock).toHaveBeenCalledWith('diff');
 	});
 
-	it('should write the changes to the file when dryRun is false', async () => {
+	test('file is updated when dryRun is false', async () => {
 		const packageJson = { old: {}, new: {} };
 		const dryRun = false;
 		jest.spyOn(fs.promises, 'writeFile').mockResolvedValueOnce();
@@ -45,7 +47,7 @@ describe('handleMakeChanges', () => {
 		expect(fs.promises.writeFile).toHaveBeenCalledWith('filepath', JSON.stringify(packageJson.new, undefined, 2));
 	});
 
-	it('should log when logging is true when writing changes', async () => {
+	test('logs messages when logging is true while writing to file', async () => {
 		const packageJson = { old: {}, new: {} };
 		const dryRun = false;
 		jest.spyOn(fs.promises, 'writeFile').mockResolvedValueOnce();

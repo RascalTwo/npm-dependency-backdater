@@ -11,7 +11,7 @@ const saveVersionCache = saveCache as jest.MockedFunction<typeof saveCache>;
 const fetchPackageVersionDatesMock = fetchPackageVersionDates as jest.MockedFunction<typeof fetchPackageVersionDates>;
 
 describe('getPackageVersionDates', () => {
-	test('uses cached version', async () => {
+	test('cached versions are returned', async () => {
 		const datetime = new Date('2020-01-01T00:00:00Z');
 		const versionCache = {
 			foo: {

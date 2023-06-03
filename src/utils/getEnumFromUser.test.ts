@@ -18,7 +18,7 @@ const mockQuestion = (answer: string) =>
 	});
 
 describe('getEnumFromUser', () => {
-	it('should return the chosen value', async () => {
+	test('chosen value is returned', async () => {
 		mockQuestion('b');
 
 		const result = await getEnumFromUser('a', 'b');
@@ -27,7 +27,7 @@ describe('getEnumFromUser', () => {
 		expect(readlineInterface.question).toHaveBeenCalled();
 	});
 
-	it('works with numbers', async () => {
+	test('numbers are supported', async () => {
 		mockQuestion('1');
 
 		const result = await getEnumFromUser(1, 2);
@@ -36,7 +36,7 @@ describe('getEnumFromUser', () => {
 		expect(readlineInterface.question).toHaveBeenCalled();
 	});
 
-	it('should handle if the user enters an invalid value', async () => {
+	test("invalid values aren't accepted", async () => {
 		jest.spyOn(console, 'log').mockImplementationOnce(() => undefined);
 		mockQuestion('foo');
 		mockQuestion('1');
@@ -48,7 +48,7 @@ describe('getEnumFromUser', () => {
 		expect(console.log).toHaveBeenCalledWith('Please enter one of: 0, 1');
 	});
 
-	it('should throw if not provided any values', async () => {
+	test('throws when not provided at least one value', async () => {
 		await expect(getEnumFromUser()).rejects.toThrow('Must provide at least one acceptable value');
 	});
 });

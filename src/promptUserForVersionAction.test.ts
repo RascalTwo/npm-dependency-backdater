@@ -7,7 +7,7 @@ const getEnumFromUserMock = getEnumFromUser as jest.MockedFunction<typeof getEnu
 jest.mock('./utils/getEnumFromUser');
 
 describe('promptUserForVersionAction', () => {
-	it('should return the chosen value', async () => {
+	test('chosen value is returned', async () => {
 		const log = jest.fn();
 		getEnumFromUserMock.mockResolvedValueOnce(1);
 
@@ -25,7 +25,7 @@ describe('promptUserForVersionAction', () => {
 		expect(log).toHaveBeenCalledWith('Choose action for foo:');
 	});
 
-	it('logs each version action with a numeric prefix', async () => {
+	test('version actions are logged with numeric prefix', async () => {
 		const log = jest.fn();
 		getEnumFromUserMock.mockResolvedValueOnce(0);
 
@@ -42,7 +42,7 @@ describe('promptUserForVersionAction', () => {
 		expect(log).toHaveBeenCalledWith('1 - upgrade 2.0.0');
 	});
 
-	it("instantly returns the only option if there's only one", async () => {
+	test('only option is returned if no others exist', async () => {
 		const log = jest.fn();
 
 		const result = await promptUserForVersionAction('foo', [['install', '1.0.0']], log);
@@ -52,7 +52,7 @@ describe('promptUserForVersionAction', () => {
 		expect(log).not.toHaveBeenCalled();
 	});
 
-	it('should use console.log if no log is provided', async () => {
+	test('console.log is the default logger', async () => {
 		jest.spyOn(console, 'log').mockImplementation(() => undefined);
 		getEnumFromUserMock.mockResolvedValueOnce(1);
 

@@ -55,7 +55,7 @@ describe('SilentListener default handlers are all silent', () => {
 		});
 	});
 
-	test('handleMakeChanges is called without logging', async () => {
+	test('handleMakeChanges is called with logging disabled', async () => {
 		await SilentListener.handleMakeChanges('', { old: {}, new: {} }, true);
 
 		expect(handleMakeChangesMock).toHaveBeenCalledWith(false, '', { old: {}, new: {} }, true);
