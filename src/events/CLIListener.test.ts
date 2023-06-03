@@ -55,8 +55,9 @@ describe('CLIListener', () => {
 		test('outputs package file path and datetime', () => {
 			const packageFilePath = 'path/to/package.json';
 			const datetime = new Date();
+			CLIListener.initialize(packageFilePath, datetime, {} as Options);
 
-			CLIListener.handleRunStart({} as Options, packageFilePath, datetime);
+			CLIListener.handleRunStart();
 
 			expect(console.log).toHaveBeenCalledWith(
 				`Attempting to update package versions in "${packageFilePath}" to their latest versions as of ${datetime.toISOString()}...`,
@@ -67,8 +68,9 @@ describe('CLIListener', () => {
 	describe('handleReadingPackageFileStart', () => {
 		test('outputs package file path', () => {
 			const packageFilePath = 'path/to/package.json';
+			CLIListener.initialize(packageFilePath, new Date(), {} as Options);
 
-			CLIListener.handleReadingPackageFileStart(packageFilePath);
+			CLIListener.handleReadingPackageFileStart();
 
 			expect(console.log).toHaveBeenCalledWith(`Reading package file "${packageFilePath}"...`);
 		});
@@ -77,16 +79,18 @@ describe('CLIListener', () => {
 	describe('handleReadingPackageFileFinish', () => {
 		test('outputs package file path and read byte count', () => {
 			const packageFilePath = 'path/to/package.json';
+			CLIListener.initialize(packageFilePath, new Date(), {} as Options);
 
-			CLIListener.handleReadingPackageFileFinish(packageFilePath, 'string content');
+			CLIListener.handleReadingPackageFileFinish('string content');
 
 			expect(console.log).toHaveBeenCalledWith(`14 bytes of "${packageFilePath}" read.`);
 		});
 
 		test('word "byte" is properly pluralized', () => {
 			const packageFilePath = 'path/to/package.json';
+			CLIListener.initialize(packageFilePath, new Date(), {} as Options);
 
-			CLIListener.handleReadingPackageFileFinish(packageFilePath, ' ');
+			CLIListener.handleReadingPackageFileFinish(' ');
 
 			expect(console.log).toHaveBeenCalledWith(`1 byte of "${packageFilePath}" read.`);
 		});
@@ -139,8 +143,9 @@ describe('CLIListener', () => {
 				'1.0.0': datetime.toISOString(),
 				'1.1.0': datetime.toISOString(),
 			};
+			CLIListener.initialize('', datetime, {} as Options);
 
-			CLIListener.handleGettingPackageVersionDatesFinish('dependency1', datetime, cacheDate, versions);
+			CLIListener.handleGettingPackageVersionDatesFinish('dependency1', cacheDate, versions);
 
 			expect(console.log).toHaveBeenCalledWith('Found 2 versions for "dependency1".');
 		});
@@ -151,8 +156,9 @@ describe('CLIListener', () => {
 			const versions = {
 				'1.0.0': datetime.toISOString(),
 			};
+			CLIListener.initialize('', datetime, {} as Options);
 
-			CLIListener.handleGettingPackageVersionDatesFinish('dependency1', datetime, cacheDate, versions);
+			CLIListener.handleGettingPackageVersionDatesFinish('dependency1', cacheDate, versions);
 
 			expect(console.log).toHaveBeenCalledWith('Found 1 version for "dependency1".');
 		});
@@ -163,8 +169,9 @@ describe('CLIListener', () => {
 			const versions = {
 				'1.0.0': new Date().toISOString(),
 			};
+			CLIListener.initialize('', datetime, {} as Options);
 
-			CLIListener.handleGettingPackageVersionDatesFinish('dependency1', datetime, cacheDate, versions);
+			CLIListener.handleGettingPackageVersionDatesFinish('dependency1', cacheDate, versions);
 
 			expect(console.log).toHaveBeenCalledWith(
 				`Found 1 version for "dependency1". (cached from ${cacheDate.toISOString()})`,
@@ -174,13 +181,13 @@ describe('CLIListener', () => {
 
 	describe('handleCalculatedHighestVersion', () => {
 		test('outputs when no versions are available', () => {
-			CLIListener.handleCalculatedHighestVersion('dependency1', '1.0.0', null, false);
+			CLIListener.handleCalculatedHighestVersion('dependency1', '1.0.0', null);
 
 			expect(console.log).toHaveBeenCalledWith('No versions available.');
 		});
 
 		test('outputs highest version when available', () => {
-			CLIListener.handleCalculatedHighestVersion('dependency1', '1.0.0', '1.1.0', false);
+			CLIListener.handleCalculatedHighestVersion('dependency1', '1.0.0', '1.1.0');
 
 			expect(console.log).toHaveBeenCalledWith('Highest version of "dependency1" available is "1.1.0".');
 		});
@@ -189,7 +196,9 @@ describe('CLIListener', () => {
 			['', false],
 			[' and pre-releases are allowed', true],
 		])('outputs when the highest version is the same as the current version%s', (_, allowPreRelease) => {
-			CLIListener.handleCalculatedHighestVersion('dependency1', '1.1.0', '1.1.0', allowPreRelease);
+			CLIListener.initialize('', new Date(), { allowPreRelease } as Options);
+
+			CLIListener.handleCalculatedHighestVersion('dependency1', '1.1.0', '1.1.0');
 
 			expect(console.log).toHaveBeenCalledWith(
 				'Highest version of "dependency1" available is "1.1.0".' + (allowPreRelease ? ' (including pre-releases)' : ''),
@@ -199,28 +208,27 @@ describe('CLIListener', () => {
 
 	describe('handlePromptUserForVersionAction', () => {
 		test('chooses first mutative action when non-interactive', async () => {
-			const options = { interactive: false } as Options;
 			const packageName = 'dependency1';
 			const actions = [
 				['keep', '1.0.0'],
 				['change', '1.1.0'],
 			] as VersionAction[];
 
-			const result = await CLIListener.handlePromptUserForVersionAction(options, packageName, actions);
+			const result = await CLIListener.handlePromptUserForVersionAction(packageName, actions);
 
 			expect(result).toEqual('1.1.0');
 		});
 
 		test('calls promptUserForVersionAction when interactive', async () => {
-			const options = { interactive: true } as Options;
 			const packageName = 'dependency1';
 			const actions = [
 				['keep', '1.0.0'],
 				['change', '1.1.0'],
 			] as VersionAction[];
 			promptUserForVersionActionMock.mockResolvedValueOnce('1.0.0');
+			CLIListener.initialize('', new Date(), { interactive: true } as Options);
 
-			const result = await CLIListener.handlePromptUserForVersionAction(options, packageName, actions);
+			const result = await CLIListener.handlePromptUserForVersionAction(packageName, actions);
 
 			expect(promptUserForVersionActionMock).toHaveBeenCalledWith(packageName, actions, console.log);
 			expect(result).toEqual('1.0.0');
@@ -276,8 +284,15 @@ describe('CLIListener', () => {
 	});
 
 	test('handleMakeChanges is called with logging', async () => {
-		await CLIListener.handleMakeChanges('', { old: {}, new: {} }, true);
+		CLIListener.initialize('filepath', new Date(), { dryRun: true } as Options);
 
-		expect(handleMakeChangesMock).toHaveBeenCalledWith(true, '', { old: {}, new: {} }, true);
+		await CLIListener.handleMakeChanges({ old: true }, { new: true });
+
+		expect(handleMakeChangesMock).toHaveBeenCalledWith(
+			true,
+			'filepath',
+			{ old: { old: true }, new: { new: true } },
+			true,
+		);
 	});
 });

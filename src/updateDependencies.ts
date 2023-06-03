@@ -13,13 +13,12 @@ export default async function updateDependencies(dependencyMap: DependencyMap, d
 
 		listener.handleGettingPackageVersionDatesStart(packageName);
 		const [versions, cacheDate] = await getPackageVersionDates(packageName, datetime);
-		listener.handleGettingPackageVersionDatesFinish(packageName, datetime, cacheDate, versions);
+		listener.handleGettingPackageVersionDatesFinish(packageName, cacheDate, versions);
 
 		const highestVersion = getHighestVersionAtTime(versions, datetime, !options.allowPreRelease);
-		listener.handleCalculatedHighestVersion(packageName, version.version, highestVersion, !!options.allowPreRelease);
+		listener.handleCalculatedHighestVersion(packageName, version.version, highestVersion);
 		if (highestVersion && version.version !== highestVersion) {
 			const updatedVersion = await listener.handlePromptUserForVersionAction(
-				options,
 				packageName,
 				generateVersionActions(version, highestVersion, options.stripPrefixes),
 			);

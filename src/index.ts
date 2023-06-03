@@ -6,7 +6,6 @@ import updatePackageVersions from './updatePackageVersions';
 
 export default async function main(packageFilePath: string, datetimeArg: string, options: Options) {
 	const { listener } = options;
-	//listener.validate();
 
 	if (!packageFilePath || !datetimeArg) {
 		return listener.handleMissingArguments();
@@ -20,11 +19,13 @@ export default async function main(packageFilePath: string, datetimeArg: string,
 		datetime = listener.handleDatetimeInFuture(datetime);
 	}
 
-	listener.handleRunStart(options, packageFilePath, datetime);
+	listener.initialize(packageFilePath, datetime, options);
+
+	listener.handleRunStart();
 
 	await updatePackageVersions(packageFilePath, datetime, options);
 
-	listener.handleRunFinish(options, packageFilePath, datetime);
+	listener.handleRunFinish();
 }
 
 // istanbul ignore next

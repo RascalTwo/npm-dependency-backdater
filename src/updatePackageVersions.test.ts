@@ -69,9 +69,9 @@ describe('updatePackageVersions', () => {
 
 		await updatePackageVersions(packageFilePath, datetime, { listener });
 
-		expect(listener.handleReadingPackageFileStart).toHaveBeenCalledWith(packageFilePath);
+		expect(listener.handleReadingPackageFileStart).toHaveBeenCalled();
 		expect(fs.promises.readFile).toHaveBeenCalledWith(packageFilePath, 'utf8');
-		expect(listener.handleReadingPackageFileFinish).toHaveBeenCalledWith(packageFilePath, JSON.stringify(packageJson));
+		expect(listener.handleReadingPackageFileFinish).toHaveBeenCalledWith(JSON.stringify(packageJson));
 		expect(listener.handleDiscoveringDependencyMapStart).toHaveBeenCalledWith('dependencies');
 		expect(listener.handleDiscoveringDependencyMapFinish).toHaveBeenCalledWith(
 			'dependencies',
@@ -80,14 +80,7 @@ describe('updatePackageVersions', () => {
 		expect(updateDependenciesMock).toHaveBeenCalledWith(packageJson.dependencies, datetime, { listener });
 		expect(listener.handleDependencyMapProcessed).toHaveBeenCalledWith('dependencies', updatedPackageJson.dependencies);
 		expect(listener.handleChangesMade).toHaveBeenCalledWith(true);
-		expect(listener.handleMakeChanges).toHaveBeenCalledWith(
-			packageFilePath,
-			{
-				old: packageJson,
-				new: updatedPackageJson,
-			},
-			false,
-		);
+		expect(listener.handleMakeChanges).toHaveBeenCalledWith(packageJson, updatedPackageJson);
 	});
 
 	test("listen.handleMakeChanges isn't called when there are no changes made", async () => {
@@ -118,17 +111,10 @@ describe('updatePackageVersions', () => {
 
 		await updatePackageVersions(packageFilePath, datetime, { listener, dryRun: true });
 
-		expect(listener.handleMakeChanges).toHaveBeenCalledWith(
-			packageFilePath,
-			{
-				old: oldPackageJson,
-				new: {
-					dependencies: {
-						dependency1: '1.1.0',
-					},
-				},
+		expect(listener.handleMakeChanges).toHaveBeenCalledWith(oldPackageJson, {
+			dependencies: {
+				dependency1: '1.1.0',
 			},
-			true,
-		);
+		});
 	});
 });

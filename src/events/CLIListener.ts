@@ -1,4 +1,4 @@
-import type { DependencyMap, DependencyType, Options, VersionAction, VersionMap } from '../types';
+import type { DependencyMap, DependencyType, VersionAction, VersionMap } from '../types';
 import BaseListener from './BaseListener';
 import { SUPPORTED_VERSION_PREFIXES } from '../constants';
 import { handleMakeChanges } from './commonHandlers';
@@ -33,18 +33,20 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 		return new Date();
 	},
 
-	handleRunStart(options: Options, packageFilePath: string, datetime: Date) {
+	handleRunStart() {
 		console.log(
-			`Attempting to update package versions in "${packageFilePath}" to their latest versions as of ${datetime.toISOString()}...`,
+			`Attempting to update package versions in "${
+				this.packageFilePath
+			}" to their latest versions as of ${this.datetime.toISOString()}...`,
 		);
 	},
 
-	handleReadingPackageFileStart(packageFilePath: string) {
-		console.log(`Reading package file "${packageFilePath}"...`);
+	handleReadingPackageFileStart() {
+		console.log(`Reading package file "${this.packageFilePath}"...`);
 	},
 
-	handleReadingPackageFileFinish(packageFilePath: string, content: string) {
-		console.log(`${content.length} ${pluralizeNoun('byte', content.length)} of "${packageFilePath}" read.`);
+	handleReadingPackageFileFinish(content: string) {
+		console.log(`${content.length} ${pluralizeNoun('byte', content.length)} of "${this.packageFilePath}" read.`);
 	},
 
 	handleDiscoveringDependencyMapStart(map: DependencyType) {
@@ -65,33 +67,23 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 		console.log(`Getting version dates for "${packageName}"...`);
 	},
 
-	handleGettingPackageVersionDatesFinish(
-		packageName: string,
-		datetime: Date,
-		cacheDate: Date,
-		versions: VersionMap,
-	): void {
+	handleGettingPackageVersionDatesFinish(packageName: string, cacheDate: Date, versions: VersionMap): void {
 		const versionCount = Object.keys(versions).length;
 		console.log(
 			`Found ${versionCount} ${pluralizeNoun('version', versionCount)} for "${packageName}".${
-				datetime !== cacheDate ? ` (cached from ${cacheDate.toISOString()})` : ''
+				this.datetime !== cacheDate ? ` (cached from ${cacheDate.toISOString()})` : ''
 			}`,
 		);
 	},
 
-	handleCalculatedHighestVersion(
-		packageName: string,
-		version: string,
-		highestVersion: string | null,
-		allowPreRelease: boolean,
-	): void {
+	handleCalculatedHighestVersion(packageName: string, version: string, highestVersion: string | null): void {
 		if (!highestVersion) {
 			return console.log('No versions available.');
 		}
 
 		console.log(
 			`Highest version of "${packageName}" available is "${highestVersion}".${
-				allowPreRelease ? ' (including pre-releases)' : ''
+				this.options.allowPreRelease ? ' (including pre-releases)' : ''
 			}`,
 		);
 		if (highestVersion === version) {
@@ -99,12 +91,8 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 		}
 	},
 
-	async handlePromptUserForVersionAction(
-		options: Options,
-		packageName: string,
-		actions: VersionAction[],
-	): Promise<string> {
-		if (!options.interactive) {
+	async handlePromptUserForVersionAction(packageName: string, actions: VersionAction[]): Promise<string> {
+		if (!this.options.interactive) {
 			return actions[1][1];
 		}
 		return promptUserForVersionAction(packageName, actions, console.log);
@@ -133,5 +121,13 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 		}
 	},
 
-	handleMakeChanges: handleMakeChanges.bind(null, true),
+	handleMakeChanges(oldPackageJson: object, newPackageJson: object) {
+		return handleMakeChanges.call(
+			this,
+			true,
+			this.packageFilePath,
+			{ old: oldPackageJson, new: newPackageJson },
+			!!this.options.dryRun,
+		);
+	},
 };

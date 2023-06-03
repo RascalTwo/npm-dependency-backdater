@@ -1,10 +1,11 @@
-import type { AllEventsListener, OptionalEventsListener } from './events/BaseListener';
+import type { BaseEventsListener, UnresponsiveBaseEventsHandlers } from './events/BaseListener';
 import BaseListener from './events/BaseListener';
 import type { Options } from './types';
 
 export const generateMockListener = () => {
 	const listener = {
 		...Object.keys(BaseListener).reduce((obj, key) => {
+			if (typeof BaseListener[key as keyof BaseEventsListener] !== 'function') return obj;
 			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 			// @ts-ignore
 			obj[key] = jest.fn();
@@ -15,51 +16,70 @@ export const generateMockListener = () => {
 		handlePromptUserForVersionAction: jest.fn(),
 		handleMakeChanges: jest.fn(),
 	} as {
-		[K in keyof AllEventsListener]: jest.Mock<ReturnType<AllEventsListener[K]>, Parameters<AllEventsListener[K]>>;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		[K in keyof BaseEventsListener]: BaseEventsListener[K] extends (...args: any[]) => any
+			? jest.Mock<ReturnType<BaseEventsListener[K]>, Parameters<BaseEventsListener[K]>>
+			: BaseEventsListener[K];
 	};
 	return listener;
 };
 
 const TEST_MAP = {
-	handleMissingArguments: (listener: OptionalEventsListener, expectResult: (result: unknown) => void) =>
+	initialize: (listener: BaseEventsListener, expectResult: (result: unknown) => void) =>
+		test('initialize', () => expectResult(listener.initialize('', new Date(), {} as Options))),
+	handleMissingArguments: (listener: BaseEventsListener, expectResult: (result: unknown) => void) =>
 		test('handleMissingArguments', () => expectResult(listener.handleMissingArguments())),
-	handleInvalidDatetime: (listener: OptionalEventsListener, expectResult: (result: unknown) => void) =>
+	handleInvalidDatetime: (listener: BaseEventsListener, expectResult: (result: unknown) => void) =>
 		test('handleInvalidDatetime', () => expectResult(listener.handleInvalidDatetime(''))),
-	handleRunStart: (listener: OptionalEventsListener, expectResult: (result: unknown) => void) =>
-		test('handleRunStart', () => expectResult(listener.handleRunStart({} as Options, '', new Date()))),
-	handleRunFinish: (listener: OptionalEventsListener, expectResult: (result: unknown) => void) =>
-		test('handleRunFinish', () => expectResult(listener.handleRunFinish({} as Options, '', new Date()))),
-	handleReadingPackageFileStart: (listener: OptionalEventsListener, expectResult: (result: unknown) => void) =>
-		test('handleReadingPackageFileStart', () => expectResult(listener.handleReadingPackageFileStart(''))),
-	handleReadingPackageFileFinish: (listener: OptionalEventsListener, expectResult: (result: unknown) => void) =>
-		test('handleReadingPackageFileFinish', () => expectResult(listener.handleReadingPackageFileFinish('', ''))),
-	handleDiscoveringDependencyMapStart: (listener: OptionalEventsListener, expectResult: (result: unknown) => void) =>
+	handleDatetimeInFuture: (listener: BaseEventsListener, expectResult: (result: unknown) => void) =>
+		test('handleDatetimeInFuture', () => {
+			expect(() => listener.handleDatetimeInFuture(new Date())).toThrowError('Not implemented');
+			expectResult(undefined);
+		}),
+	handleRunStart: (listener: BaseEventsListener, expectResult: (result: unknown) => void) =>
+		test('handleRunStart', () => expectResult(listener.handleRunStart())),
+	handleRunFinish: (listener: BaseEventsListener, expectResult: (result: unknown) => void) =>
+		test('handleRunFinish', () => expectResult(listener.handleRunFinish())),
+	handleReadingPackageFileStart: (listener: BaseEventsListener, expectResult: (result: unknown) => void) =>
+		test('handleReadingPackageFileStart', () => expectResult(listener.handleReadingPackageFileStart())),
+	handleReadingPackageFileFinish: (listener: BaseEventsListener, expectResult: (result: unknown) => void) =>
+		test('handleReadingPackageFileFinish', () => expectResult(listener.handleReadingPackageFileFinish(''))),
+	handleDiscoveringDependencyMapStart: (listener: BaseEventsListener, expectResult: (result: unknown) => void) =>
 		test('handleDiscoveringDependencyMapStart', () =>
 			expectResult(listener.handleDiscoveringDependencyMapStart('dependencies'))),
-	handleDiscoveringDependencyMapFinish: (listener: OptionalEventsListener, expectResult: (result: unknown) => void) =>
+	handleDiscoveringDependencyMapFinish: (listener: BaseEventsListener, expectResult: (result: unknown) => void) =>
 		test('handleDiscoveringDependencyMapFinish', () =>
 			expectResult(listener.handleDiscoveringDependencyMapFinish('dependencies'))),
-	handleGettingPackageVersionDatesStart: (listener: OptionalEventsListener, expectResult: (result: unknown) => void) =>
+	handleGettingPackageVersionDatesStart: (listener: BaseEventsListener, expectResult: (result: unknown) => void) =>
 		test('handleGettingPackageVersionDatesStart', () =>
 			expectResult(listener.handleGettingPackageVersionDatesStart(''))),
-	handleGettingPackageVersionDatesFinish: (listener: OptionalEventsListener, expectResult: (result: unknown) => void) =>
+	handleGettingPackageVersionDatesFinish: (listener: BaseEventsListener, expectResult: (result: unknown) => void) =>
 		test('handleGettingPackageVersionDatesFinish', () =>
-			expectResult(listener.handleGettingPackageVersionDatesFinish('', new Date(), new Date(), {}))),
-	handleCalculatedHighestVersion: (listener: OptionalEventsListener, expectResult: (result: unknown) => void) =>
-		test('handleCalculatedHighestVersion', () =>
-			expectResult(listener.handleCalculatedHighestVersion('', '', '', false))),
-	handleDependencyProcessed: (listener: OptionalEventsListener, expectResult: (result: unknown) => void) =>
+			expectResult(listener.handleGettingPackageVersionDatesFinish('', new Date(), {}))),
+	handleCalculatedHighestVersion: (listener: BaseEventsListener, expectResult: (result: unknown) => void) =>
+		test('handleCalculatedHighestVersion', () => expectResult(listener.handleCalculatedHighestVersion('', '', ''))),
+	handlePromptUserForVersionAction: (listener: BaseEventsListener, expectResult: (result: unknown) => void) =>
+		test('handlePromptUserForVersionAction', async () => {
+			await expect(listener.handlePromptUserForVersionAction('', [])).rejects.toThrowError('Not implemented');
+			expectResult(undefined);
+		}),
+	handleDependencyProcessed: (listener: BaseEventsListener, expectResult: (result: unknown) => void) =>
 		test('handleDependencyProcessed', () => expectResult(listener.handleDependencyProcessed('', { old: '', new: '' }))),
-	handleDependencyMapProcessed: (listener: OptionalEventsListener, expectResult: (result: unknown) => void) =>
+	handleDependencyMapProcessed: (listener: BaseEventsListener, expectResult: (result: unknown) => void) =>
 		test('handleDependencyMapProcessed', () => expectResult(listener.handleDependencyMapProcessed('dependencies', {}))),
-	handleChangesMade: (listener: OptionalEventsListener, expectResult: (result: unknown) => void) =>
+	handleChangesMade: (listener: BaseEventsListener, expectResult: (result: unknown) => void) =>
 		test('handleChangesMade', () => expectResult(listener.handleChangesMade(false))),
+	handleMakeChanges: (listener: BaseEventsListener, expectResult: (result: unknown) => void) =>
+		test('handleMakeChanges', async () => {
+			await expect(listener.handleMakeChanges({}, {})).rejects.toThrowError('Not implemented');
+			expectResult(undefined);
+		}),
 };
 
 export function testHandlersAreSilent(
-	listener: OptionalEventsListener,
+	listener: BaseEventsListener,
 	expectResult: (result: unknown) => void,
-	...handlerNames: (keyof OptionalEventsListener)[]
+	...handlerNames: UnresponsiveBaseEventsHandlers
 ) {
 	for (const handlerName of handlerNames) {
 		TEST_MAP[handlerName](listener, expectResult);

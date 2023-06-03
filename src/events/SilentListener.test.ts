@@ -1,14 +1,13 @@
 import { generateConsoleMock, testHandlersAreSilent } from '../testHelpers';
 
 import CLIListener from './CLIListener';
+import type { Options } from '../types';
 import SilentListener from './SilentListener';
 
 import { handleMakeChanges } from './commonHandlers';
 
-const CLIListenerMock = CLIListener as jest.Mocked<typeof CLIListener>;
 const handleMakeChangesMock = handleMakeChanges as jest.MockedFunction<typeof handleMakeChanges>;
 
-jest.mock('./CLIListener');
 jest.mock('./commonHandlers');
 
 describe('SilentListener default handlers are all silent', () => {
@@ -44,16 +43,21 @@ describe('SilentListener default handlers are all silent', () => {
 			'handleInvalidDatetime',
 			'handleDatetimeInFuture',
 			'handlePromptUserForVersionAction',
-		] as const)('%s', handler => {
-			expect(SilentListener[handler]).toBe(CLIListenerMock[handler]);
+		] as const)('%s', async handler => {
+			expect(SilentListener[handler]).toBe(CLIListener[handler]);
 		});
 	});
 
 	test('handleMakeChanges is called with logging disabled', async () => {
-		const args = ['', { old: {}, new: {} }, true] as const;
+		SilentListener.initialize('filepath', new Date(), {} as Options);
 
-		await SilentListener.handleMakeChanges(...args);
+		await SilentListener.handleMakeChanges({ old: true }, { new: true });
 
-		expect(handleMakeChangesMock).toHaveBeenCalledWith(false, ...args);
+		expect(handleMakeChangesMock).toHaveBeenCalledWith(
+			false,
+			'filepath',
+			{ old: { old: true }, new: { new: true } },
+			false,
+		);
 	});
 });

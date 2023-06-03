@@ -13,5 +13,13 @@ export default {
 
 	handlePromptUserForVersionAction: CLIListener.handlePromptUserForVersionAction,
 
-	handleMakeChanges: handleMakeChanges.bind(null, false),
+	handleMakeChanges(oldPackageJson: object, newPackageJson: object) {
+		return handleMakeChanges.call(
+			this,
+			false,
+			this.packageFilePath,
+			{ old: oldPackageJson, new: newPackageJson },
+			!!this.options.dryRun,
+		);
+	},
 };

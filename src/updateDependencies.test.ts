@@ -41,12 +41,11 @@ describe('updateDependencies', () => {
 			expect(listener.handleGettingPackageVersionDatesFinish).toHaveBeenCalledWith(
 				'dependency1',
 				datetime,
-				datetime,
 				dependency1Versions,
 			);
 			expect(getPackageVersionDates).toHaveBeenCalledWith('dependency2', datetime);
 			expect(getHighestVersionAtTime).toHaveBeenCalledWith(dependency1Versions, datetime, true);
-			expect(listener.handleCalculatedHighestVersion).toHaveBeenCalledWith('dependency1', '1.0.0', '1.0.0', false);
+			expect(listener.handleCalculatedHighestVersion).toHaveBeenCalledWith('dependency1', '1.0.0', '1.0.0');
 			expect(getHighestVersionAtTime).toHaveBeenCalledWith(dependency2Versions, datetime, true);
 		});
 
@@ -69,9 +68,7 @@ describe('updateDependencies', () => {
 
 		const result = await updateDependencies(dependencies, datetime, { listener });
 
-		expect(listener.handlePromptUserForVersionAction).toHaveBeenCalledWith({ listener }, 'dependency1', [
-			['verb', 'version'],
-		]);
+		expect(listener.handlePromptUserForVersionAction).toHaveBeenCalledWith('dependency1', [['verb', 'version']]);
 		expect(listener.handleDependencyProcessed).toHaveBeenCalledWith('dependency1', {
 			old: '~1.0.0',
 			new: '~1.1.0',

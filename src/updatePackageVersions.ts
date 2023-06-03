@@ -7,9 +7,9 @@ import updateDependencies from './updateDependencies';
 export default async function updatePackageVersions(packageFilePath: string, datetime: Date, options: Options) {
 	const { listener } = options;
 
-	listener.handleReadingPackageFileStart(packageFilePath);
+	listener.handleReadingPackageFileStart();
 	const packageJsonString = await fs.promises.readFile(packageFilePath, 'utf8');
-	listener.handleReadingPackageFileFinish(packageFilePath, packageJsonString);
+	listener.handleReadingPackageFileFinish(packageJsonString);
 
 	const packageJson = JSON.parse(packageJsonString) as Record<DependencyType, DependencyMap>;
 	const oldPackageJson = JSON.parse(JSON.stringify(packageJson));
@@ -33,12 +33,5 @@ export default async function updatePackageVersions(packageFilePath: string, dat
 	listener.handleChangesMade(changesMade);
 	if (!changesMade) return;
 
-	return listener.handleMakeChanges(
-		packageFilePath,
-		{
-			old: oldPackageJson,
-			new: packageJson,
-		},
-		!!options.dryRun,
-	);
+	return listener.handleMakeChanges(oldPackageJson, packageJson);
 }
