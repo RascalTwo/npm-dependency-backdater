@@ -1,29 +1,23 @@
+import { generateConsoleMock, testHandlersAreSilent } from '../testHelpers';
+
 import CLIListener from './CLIListener';
 import SilentListener from './SilentListener';
+
 import { handleMakeChanges } from './commonHandlers';
-import { testHandlersAreSilent } from '../testHelpers';
 
 const CLIListenerMock = CLIListener as jest.Mocked<typeof CLIListener>;
 const handleMakeChangesMock = handleMakeChanges as jest.MockedFunction<typeof handleMakeChanges>;
 
-jest.mock('./commonHandlers');
 jest.mock('./CLIListener');
+jest.mock('./commonHandlers');
 
 describe('SilentListener default handlers are all silent', () => {
-	const logMock = (console.log = jest.fn());
-	const warnMock = (console.warn = jest.fn());
-	const errorMock = (console.error = jest.fn());
-
-	beforeEach(() => {
-		logMock.mockClear();
-		warnMock.mockClear();
-		errorMock.mockClear();
-	});
+	const console = generateConsoleMock('log', 'warn', 'error');
 
 	const expectResult = (result: unknown) => {
-		expect(logMock).not.toHaveBeenCalled();
-		expect(warnMock).not.toHaveBeenCalled();
-		expect(errorMock).not.toHaveBeenCalled();
+		expect(console.log).not.toHaveBeenCalled();
+		expect(console.warn).not.toHaveBeenCalled();
+		expect(console.error).not.toHaveBeenCalled();
 		expect(result).toBeUndefined();
 	};
 
@@ -56,8 +50,10 @@ describe('SilentListener default handlers are all silent', () => {
 	});
 
 	test('handleMakeChanges is called with logging disabled', async () => {
-		await SilentListener.handleMakeChanges('', { old: {}, new: {} }, true);
+		const args = ['', { old: {}, new: {} }, true] as const;
 
-		expect(handleMakeChangesMock).toHaveBeenCalledWith(false, '', { old: {}, new: {} }, true);
+		await SilentListener.handleMakeChanges(...args);
+
+		expect(handleMakeChangesMock).toHaveBeenCalledWith(false, ...args);
 	});
 });

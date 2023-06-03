@@ -1,4 +1,5 @@
 import { SUPPORTED_VERSION_PREFIXES } from './constants';
+
 import parseRawVersion from './parseRawVersion';
 
 describe('parseRawVersion', () => {

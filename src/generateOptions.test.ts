@@ -1,5 +1,6 @@
 import CLIListener from './events/CLIListener';
 import SilentListener from './events/SilentListener';
+
 import generateOptions from './generateOptions';
 
 describe('generateOptions', () => {

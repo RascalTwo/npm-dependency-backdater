@@ -1,8 +1,8 @@
 import { loadCache, saveCache } from './cache';
+
 import fs from 'fs';
 import os from 'os';
 
-jest.mock('os');
 jest.mock('fs', () => ({
 	existsSync: jest.fn(),
 	promises: {
@@ -11,19 +11,21 @@ jest.mock('fs', () => ({
 		writeFile: jest.fn(),
 	},
 }));
-
-beforeEach(() => jest.spyOn(os, 'tmpdir').mockReturnValue('/tmp'));
+jest.mock('os');
 
 const cache = { foo: 'bar' };
+
+beforeEach(() => jest.spyOn(os, 'tmpdir').mockReturnValue('/tmp'));
 
 describe('loadCache', () => {
 	test("empty object is returned if it doesn't exist", async () => {
 		jest.spyOn(fs, 'existsSync').mockReturnValue(false);
 
-		expect(await loadCache()).toEqual({});
+		const result = await loadCache();
 
 		expect(os.tmpdir).toHaveBeenCalled();
 		expect(fs.promises.readFile).not.toHaveBeenCalled();
+		expect(result).toEqual({});
 	});
 
 	test('parsed JSON is returned', async () => {
@@ -33,7 +35,6 @@ describe('loadCache', () => {
 		const result = await loadCache();
 
 		expect(result).toEqual({ foo: 'bar' });
-
 		expect(fs.promises.readFile).toHaveBeenCalled();
 	});
 });

@@ -65,3 +65,10 @@ export function testHandlersAreSilent(
 		TEST_MAP[handlerName](listener, expectResult);
 	}
 }
+
+export function generateConsoleMock(...methods: (keyof Console)[]) {
+	return methods.reduce((obj, method) => {
+		obj[method] = console[method] = jest.fn();
+		return obj;
+	}, {} as Record<keyof Console, jest.Mock>);
+}

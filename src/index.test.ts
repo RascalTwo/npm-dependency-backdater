@@ -1,12 +1,12 @@
 import { generateMockListener } from './testHelpers';
+
 import main from '.';
+
 import updatePackageVersions from './updatePackageVersions';
 
 const updatePackageVersionsMock = updatePackageVersions as jest.MockedFunction<typeof updatePackageVersions>;
 
 jest.mock('./updatePackageVersions');
-jest.mock('./events/BaseListener');
-jest.mock('./events/CLIListener');
 
 describe('main', () => {
 	const packageFilePath = '/path/to/package.json';
@@ -43,7 +43,6 @@ describe('main', () => {
 
 	test('datetime returned by listener.handleDatetimeInFuture is used', async () => {
 		const invalidDatetimeArg = '4000-01-01';
-
 		const correctedDatetime = new Date('2022-01-01T00:00:00Z');
 		listener.handleDatetimeInFuture.mockReturnValueOnce(correctedDatetime);
 

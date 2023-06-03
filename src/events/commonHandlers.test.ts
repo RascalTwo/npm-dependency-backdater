@@ -1,10 +1,12 @@
 import { diff } from 'jest-diff';
 import fs from 'fs';
+
+import { generateConsoleMock } from '../testHelpers';
+
 import { handleMakeChanges } from './commonHandlers';
 
 const diffMock = diff as jest.MockedFunction<typeof diff>;
 
-jest.mock('jest-diff');
 jest.mock('fs', () => ({
 	existsSync: jest.fn(),
 	promises: {
@@ -13,20 +15,16 @@ jest.mock('fs', () => ({
 		writeFile: jest.fn(),
 	},
 }));
+jest.mock('jest-diff');
 
 describe('handleMakeChanges', () => {
-	const logMock = (console.log = jest.fn());
-
-	beforeEach(() => {
-		logMock.mockClear();
-	});
+	const packageJson = { old: {}, new: {} };
+	const console = generateConsoleMock('log');
 
 	test('diff is logged when dryRun is true', async () => {
-		const packageJson = { old: {}, new: {} };
-		const dryRun = true;
 		diffMock.mockReturnValueOnce('diff');
 
-		await handleMakeChanges(false, '', packageJson, dryRun);
+		await handleMakeChanges(false, '', packageJson, true);
 
 		expect(diffMock).toHaveBeenCalledWith(packageJson.old, packageJson.new, {
 			aAnnotation: 'Old Version(s)',
@@ -34,28 +32,21 @@ describe('handleMakeChanges', () => {
 			bAnnotation: 'New Version(s)',
 			bColor: expect.any(Function),
 		});
-		expect(logMock).toHaveBeenCalledWith('diff');
+		expect(console.log).toHaveBeenCalledWith('diff');
 	});
 
 	test('file is updated when dryRun is false', async () => {
-		const packageJson = { old: {}, new: {} };
-		const dryRun = false;
-		jest.spyOn(fs.promises, 'writeFile').mockResolvedValueOnce();
-
-		await handleMakeChanges(false, 'filepath', packageJson, dryRun);
+		await handleMakeChanges(false, 'filepath', packageJson, false);
 
 		expect(fs.promises.writeFile).toHaveBeenCalledWith('filepath', JSON.stringify(packageJson.new, undefined, 2));
+		expect(console.log).not.toBeCalled();
 	});
 
 	test('logs messages when logging is true while writing to file', async () => {
-		const packageJson = { old: {}, new: {} };
-		const dryRun = false;
-		jest.spyOn(fs.promises, 'writeFile').mockResolvedValueOnce();
+		await handleMakeChanges(true, 'filepath', packageJson, false);
 
-		await handleMakeChanges(true, 'filepath', packageJson, dryRun);
-
-		expect(logMock).toHaveBeenCalledWith('Writing changes to "filepath"...');
+		expect(console.log).toHaveBeenCalledWith('Writing changes to "filepath"...');
 		expect(fs.promises.writeFile).toHaveBeenCalledWith('filepath', JSON.stringify(packageJson.new, undefined, 2));
-		expect(logMock).toHaveBeenCalledWith('Changes written to "filepath".');
+		expect(console.log).toHaveBeenCalledWith('Changes written to "filepath".');
 	});
 });

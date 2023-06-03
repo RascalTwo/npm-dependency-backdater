@@ -2,28 +2,12 @@ import pluralizeNoun, { EXCEPTIONS } from './pluralizeNoun';
 
 describe('pluralizeNoun', () => {
 	describe.each(Object.entries(EXCEPTIONS))('%s exception', (noun, plural) => {
-		test('is pluralized', () => {
-			const result = pluralizeNoun(noun, 2);
+		test('is pluralized', () => expect(pluralizeNoun(noun, 2)).toBe(plural));
 
-			expect(result).toBe(plural);
-		});
-
-		test('is returned unmodified', () => {
-			const result = pluralizeNoun(noun, 1);
-
-			expect(result).toBe(noun);
-		});
+		test('is returned unmodified', () => expect(pluralizeNoun(noun, 1)).toBe(noun));
 	});
 
-	test('adds s to end of noun', () => {
-		const result = pluralizeNoun('noun', 2);
+	test('adds s to end of noun', () => expect(pluralizeNoun('noun', 2)).toBe('nouns'));
 
-		expect(result).toBe('nouns');
-	});
-
-	test('returns noun unmodified', () => {
-		const result = pluralizeNoun('noun', 1);
-
-		expect(result).toBe('noun');
-	});
+	test('returns noun unmodified', () => expect(pluralizeNoun('noun', 1)).toBe('noun'));
 });

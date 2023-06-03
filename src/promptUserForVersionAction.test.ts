@@ -1,3 +1,5 @@
+import { generateConsoleMock } from './testHelpers';
+
 import getEnumFromUser from './utils/getEnumFromUser';
 
 import promptUserForVersionAction from './utils/promptUserForVersionAction';
@@ -7,8 +9,9 @@ const getEnumFromUserMock = getEnumFromUser as jest.MockedFunction<typeof getEnu
 jest.mock('./utils/getEnumFromUser');
 
 describe('promptUserForVersionAction', () => {
+	const log = jest.fn();
+
 	test('chosen value is returned', async () => {
-		const log = jest.fn();
 		getEnumFromUserMock.mockResolvedValueOnce(1);
 
 		const result = await promptUserForVersionAction(
@@ -20,13 +23,12 @@ describe('promptUserForVersionAction', () => {
 			log,
 		);
 
-		expect(result).toBe('2.0.0');
 		expect(getEnumFromUserMock).toHaveBeenCalledWith(0, 1);
 		expect(log).toHaveBeenCalledWith('Choose action for foo:');
+		expect(result).toBe('2.0.0');
 	});
 
 	test('version actions are logged with numeric prefix', async () => {
-		const log = jest.fn();
 		getEnumFromUserMock.mockResolvedValueOnce(0);
 
 		await promptUserForVersionAction(
@@ -43,17 +45,15 @@ describe('promptUserForVersionAction', () => {
 	});
 
 	test('only option is returned if no others exist', async () => {
-		const log = jest.fn();
-
 		const result = await promptUserForVersionAction('foo', [['install', '1.0.0']], log);
 
 		expect(result).toBe('1.0.0');
-		expect(getEnumFromUserMock).not.toHaveBeenCalled();
 		expect(log).not.toHaveBeenCalled();
+		expect(getEnumFromUserMock).not.toHaveBeenCalled();
 	});
 
 	test('console.log is the default logger', async () => {
-		jest.spyOn(console, 'log').mockImplementation(() => undefined);
+		const console = generateConsoleMock('log');
 		getEnumFromUserMock.mockResolvedValueOnce(1);
 
 		const result = await promptUserForVersionAction('foo', [
@@ -61,8 +61,8 @@ describe('promptUserForVersionAction', () => {
 			['upgrade', '2.0.0'],
 		]);
 
-		expect(result).toBe('2.0.0');
-		expect(getEnumFromUserMock).toHaveBeenCalledWith(0, 1);
 		expect(console.log).toHaveBeenCalledWith('Choose action for foo:');
+		expect(getEnumFromUserMock).toHaveBeenCalledWith(0, 1);
+		expect(result).toBe('2.0.0');
 	});
 });

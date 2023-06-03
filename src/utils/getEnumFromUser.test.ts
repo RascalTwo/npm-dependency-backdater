@@ -1,4 +1,7 @@
+import { generateConsoleMock } from '../testHelpers';
+
 import getEnumFromUser from './getEnumFromUser';
+
 import type readline from 'readline';
 
 const readlineInterface = {
@@ -23,8 +26,8 @@ describe('getEnumFromUser', () => {
 
 		const result = await getEnumFromUser('a', 'b');
 
-		expect(result).toBe('b');
 		expect(readlineInterface.question).toHaveBeenCalled();
+		expect(result).toBe('b');
 	});
 
 	test('numbers are supported', async () => {
@@ -32,20 +35,20 @@ describe('getEnumFromUser', () => {
 
 		const result = await getEnumFromUser(1, 2);
 
-		expect(result).toBe(1);
 		expect(readlineInterface.question).toHaveBeenCalled();
+		expect(result).toBe(1);
 	});
 
 	test("invalid values aren't accepted", async () => {
-		jest.spyOn(console, 'log').mockImplementationOnce(() => undefined);
 		mockQuestion('foo');
+		const console = generateConsoleMock('log');
 		mockQuestion('1');
 
 		const result = await getEnumFromUser(0, 1);
 
-		expect(result).toBe(1);
 		expect(readlineInterface.question).toHaveBeenCalledTimes(2);
 		expect(console.log).toHaveBeenCalledWith('Please enter one of: 0, 1');
+		expect(result).toBe(1);
 	});
 
 	test('throws when not provided at least one value', async () => {

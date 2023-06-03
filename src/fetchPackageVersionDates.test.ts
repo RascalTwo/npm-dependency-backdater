@@ -1,4 +1,5 @@
 import fetch, { Response } from 'node-fetch';
+
 import fetchPackageVersionDates from './fetchPackageVersionDates';
 
 const fetchMock = fetch as jest.MockedFunction<typeof fetch>;
@@ -19,8 +20,7 @@ describe('fetchPackageVersionDates', () => {
 			'1.0.0': '2022-01-01T00:00:00Z',
 			'2.0.0': '2022-02-01T00:00:00Z',
 		};
-		const mockResponse = generateMockJSONResponse({ time: expectedVersions });
-		fetchMock.mockResolvedValue(mockResponse);
+		fetchMock.mockResolvedValue(generateMockJSONResponse({ time: expectedVersions }));
 
 		const result = await fetchPackageVersionDates(packageName);
 
@@ -29,8 +29,7 @@ describe('fetchPackageVersionDates', () => {
 	});
 
 	test('raises network errors', async () => {
-		const mockError = new Error('Fetch error');
-		fetchMock.mockRejectedValue(mockError);
+		fetchMock.mockRejectedValue(new Error('Fetch error'));
 
 		await expect(fetchPackageVersionDates(packageName)).rejects.toThrow('Fetch error');
 	});

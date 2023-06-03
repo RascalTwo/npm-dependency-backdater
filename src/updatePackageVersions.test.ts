@@ -1,9 +1,11 @@
 import { DEPENDENCY_TYPES } from './constants';
 
 import fs from 'fs';
+
 import { generateMockListener } from './testHelpers';
 
 import updateDependencies from './updateDependencies';
+
 import updatePackageVersions from './updatePackageVersions';
 
 const updateDependenciesMock = updateDependencies as jest.MockedFunction<typeof updateDependencies>;
@@ -115,6 +117,7 @@ describe('updatePackageVersions', () => {
 		});
 
 		await updatePackageVersions(packageFilePath, datetime, { listener, dryRun: true });
+
 		expect(listener.handleMakeChanges).toHaveBeenCalledWith(
 			packageFilePath,
 			{

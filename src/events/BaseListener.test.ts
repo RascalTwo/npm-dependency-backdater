@@ -1,22 +1,16 @@
+import { generateConsoleMock, testHandlersAreSilent } from '../testHelpers';
+
 import BaseListener from './BaseListener';
+
 import type { OptionalEventsListener } from './BaseListener';
-import { testHandlersAreSilent } from '../testHelpers';
 
 describe('BaseListener default handlers are all silent', () => {
-	const logMock = (console.log = jest.fn());
-	const warnMock = (console.warn = jest.fn());
-	const errorMock = (console.error = jest.fn());
-
-	beforeEach(() => {
-		logMock.mockClear();
-		warnMock.mockClear();
-		errorMock.mockClear();
-	});
+	const console = generateConsoleMock('log', 'warn', 'error');
 
 	const expectResult = (result: unknown) => {
-		expect(logMock).not.toHaveBeenCalled();
-		expect(warnMock).not.toHaveBeenCalled();
-		expect(errorMock).not.toHaveBeenCalled();
+		expect(console.log).not.toHaveBeenCalled();
+		expect(console.warn).not.toHaveBeenCalled();
+		expect(console.error).not.toHaveBeenCalled();
 		expect(result).toBeUndefined();
 	};
 

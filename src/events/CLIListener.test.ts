@@ -1,7 +1,9 @@
 import { DEPENDENCY_TYPES, SUPPORTED_VERSION_PREFIXES } from '../constants';
 import type { Options, VersionAction } from '../types';
+
 import CLIListener from './CLIListener';
 
+import { generateConsoleMock } from '../testHelpers';
 import { handleMakeChanges } from './commonHandlers';
 import promptUserForVersionAction from '../utils/promptUserForVersionAction';
 
@@ -14,22 +16,14 @@ jest.mock('./commonHandlers');
 jest.mock('../utils/promptUserForVersionAction');
 
 describe('CLIListener', () => {
-	const logMock = (console.log = jest.fn());
-	const warnMock = (console.warn = jest.fn());
-	const errorMock = (console.error = jest.fn());
-
-	beforeEach(() => {
-		logMock.mockClear();
-		warnMock.mockClear();
-		errorMock.mockClear();
-	});
+	const console = generateConsoleMock('log', 'warn', 'error');
 
 	describe('handleMissingArguments', () => {
 		test('outputs usage instructions', () => {
 			CLIListener.handleMissingArguments();
 
-			expect(errorMock).toHaveBeenCalledWith(expect.stringContaining('Usage: npm-dependency-backdater'));
-			expect(errorMock).toHaveBeenCalledWith(expect.stringContaining(SUPPORTED_VERSION_PREFIXES.join(', ')));
+			expect(console.error).toHaveBeenCalledWith(expect.stringContaining('Usage: npm-dependency-backdater'));
+			expect(console.error).toHaveBeenCalledWith(expect.stringContaining(SUPPORTED_VERSION_PREFIXES.join(', ')));
 		});
 	});
 
@@ -37,8 +31,8 @@ describe('CLIListener', () => {
 		test('outputs error message with provided datetime', () => {
 			CLIListener.handleInvalidDatetime('2023-06-03T10:00:00Z');
 
-			expect(errorMock).toHaveBeenCalledWith(expect.stringContaining('Expected a valid datetime'));
-			expect(errorMock).toHaveBeenCalledWith(expect.stringContaining('2023-06-03T10:00:00Z'));
+			expect(console.error).toHaveBeenCalledWith(expect.stringContaining('Expected a valid datetime'));
+			expect(console.error).toHaveBeenCalledWith(expect.stringContaining('2023-06-03T10:00:00Z'));
 		});
 	});
 
@@ -50,7 +44,7 @@ describe('CLIListener', () => {
 
 			const result = CLIListener.handleDatetimeInFuture(futureDate);
 
-			expect(warnMock).toHaveBeenCalledWith(
+			expect(console.warn).toHaveBeenCalledWith(
 				expect.stringContaining(`Warning: The provided datetime - ${futureDate.toISOString()} - is in the future`),
 			);
 			expect(result).toStrictEqual(currentDate);
@@ -64,7 +58,7 @@ describe('CLIListener', () => {
 
 			CLIListener.handleRunStart({} as Options, packageFilePath, datetime);
 
-			expect(logMock).toHaveBeenCalledWith(
+			expect(console.log).toHaveBeenCalledWith(
 				`Attempting to update package versions in "${packageFilePath}" to their latest versions as of ${datetime.toISOString()}...`,
 			);
 		});
@@ -76,7 +70,7 @@ describe('CLIListener', () => {
 
 			CLIListener.handleReadingPackageFileStart(packageFilePath);
 
-			expect(logMock).toHaveBeenCalledWith(`Reading package file "${packageFilePath}"...`);
+			expect(console.log).toHaveBeenCalledWith(`Reading package file "${packageFilePath}"...`);
 		});
 	});
 
@@ -86,7 +80,7 @@ describe('CLIListener', () => {
 
 			CLIListener.handleReadingPackageFileFinish(packageFilePath, 'string content');
 
-			expect(logMock).toHaveBeenCalledWith(`14 bytes of "${packageFilePath}" read.`);
+			expect(console.log).toHaveBeenCalledWith(`14 bytes of "${packageFilePath}" read.`);
 		});
 
 		test('word "byte" is properly pluralized', () => {
@@ -94,7 +88,7 @@ describe('CLIListener', () => {
 
 			CLIListener.handleReadingPackageFileFinish(packageFilePath, ' ');
 
-			expect(logMock).toHaveBeenCalledWith(`1 byte of "${packageFilePath}" read.`);
+			expect(console.log).toHaveBeenCalledWith(`1 byte of "${packageFilePath}" read.`);
 		});
 	});
 
@@ -102,7 +96,7 @@ describe('CLIListener', () => {
 		test.each(DEPENDENCY_TYPES)('outputs dependency map name "%s"', dependencyType => {
 			CLIListener.handleDiscoveringDependencyMapStart(dependencyType);
 
-			expect(logMock).toHaveBeenCalledWith(`Discovering "${dependencyType}" dependencies...`);
+			expect(console.log).toHaveBeenCalledWith(`Discovering "${dependencyType}" dependencies...`);
 		});
 	});
 
@@ -113,19 +107,19 @@ describe('CLIListener', () => {
 				dependency2: '1.0.0',
 			});
 
-			expect(logMock).toHaveBeenCalledWith('2 "devDependencies" dependencies found.');
+			expect(console.log).toHaveBeenCalledWith('2 "devDependencies" dependencies found.');
 		});
 
 		test('output dependency as singular when there is only one', () => {
 			CLIListener.handleDiscoveringDependencyMapFinish('devDependencies', { dependency1: '1.0.0' });
 
-			expect(logMock).toHaveBeenCalledWith('1 "devDependencies" dependency found.');
+			expect(console.log).toHaveBeenCalledWith('1 "devDependencies" dependency found.');
 		});
 
 		test('outputs when none are found', () => {
 			CLIListener.handleDiscoveringDependencyMapFinish('devDependencies', undefined);
 
-			expect(logMock).toHaveBeenCalledWith('No "devDependencies" dependencies found.');
+			expect(console.log).toHaveBeenCalledWith('No "devDependencies" dependencies found.');
 		});
 	});
 
@@ -133,7 +127,7 @@ describe('CLIListener', () => {
 		test('outputs dependency name', () => {
 			CLIListener.handleGettingPackageVersionDatesStart('dependency1');
 
-			expect(logMock).toHaveBeenCalledWith('Getting version dates for "dependency1"...');
+			expect(console.log).toHaveBeenCalledWith('Getting version dates for "dependency1"...');
 		});
 	});
 
@@ -148,7 +142,7 @@ describe('CLIListener', () => {
 
 			CLIListener.handleGettingPackageVersionDatesFinish('dependency1', datetime, cacheDate, versions);
 
-			expect(logMock).toHaveBeenCalledWith('Found 2 versions for "dependency1".');
+			expect(console.log).toHaveBeenCalledWith('Found 2 versions for "dependency1".');
 		});
 
 		test('version has no s when only one was found', () => {
@@ -160,7 +154,7 @@ describe('CLIListener', () => {
 
 			CLIListener.handleGettingPackageVersionDatesFinish('dependency1', datetime, cacheDate, versions);
 
-			expect(logMock).toHaveBeenCalledWith('Found 1 version for "dependency1".');
+			expect(console.log).toHaveBeenCalledWith('Found 1 version for "dependency1".');
 		});
 
 		test('indicated when from cache', () => {
@@ -172,7 +166,7 @@ describe('CLIListener', () => {
 
 			CLIListener.handleGettingPackageVersionDatesFinish('dependency1', datetime, cacheDate, versions);
 
-			expect(logMock).toHaveBeenCalledWith(
+			expect(console.log).toHaveBeenCalledWith(
 				`Found 1 version for "dependency1". (cached from ${cacheDate.toISOString()})`,
 			);
 		});
@@ -182,13 +176,13 @@ describe('CLIListener', () => {
 		test('outputs when no versions are available', () => {
 			CLIListener.handleCalculatedHighestVersion('dependency1', '1.0.0', null, false);
 
-			expect(logMock).toHaveBeenCalledWith('No versions available.');
+			expect(console.log).toHaveBeenCalledWith('No versions available.');
 		});
 
 		test('outputs highest version when available', () => {
 			CLIListener.handleCalculatedHighestVersion('dependency1', '1.0.0', '1.1.0', false);
 
-			expect(logMock).toHaveBeenCalledWith('Highest version of "dependency1" available is "1.1.0".');
+			expect(console.log).toHaveBeenCalledWith('Highest version of "dependency1" available is "1.1.0".');
 		});
 
 		test.each([
@@ -197,7 +191,7 @@ describe('CLIListener', () => {
 		])('outputs when the highest version is the same as the current version%s', (_, allowPreRelease) => {
 			CLIListener.handleCalculatedHighestVersion('dependency1', '1.1.0', '1.1.0', allowPreRelease);
 
-			expect(logMock).toHaveBeenCalledWith(
+			expect(console.log).toHaveBeenCalledWith(
 				'Highest version of "dependency1" available is "1.1.0".' + (allowPreRelease ? ' (including pre-releases)' : ''),
 			);
 		});
@@ -237,13 +231,13 @@ describe('CLIListener', () => {
 		test('outputs when version has changed', () => {
 			CLIListener.handleDependencyProcessed('dependency1', { old: '1.0.0', new: '1.1.0' });
 
-			expect(logMock).toHaveBeenCalledWith('Updated "dependency1" from "1.0.0" to "1.1.0".');
+			expect(console.log).toHaveBeenCalledWith('Updated "dependency1" from "1.0.0" to "1.1.0".');
 		});
 
 		test('outputs when version has not changed', () => {
 			CLIListener.handleDependencyProcessed('dependency1', { old: '1.0.0', new: '1.0.0' });
 
-			expect(logMock).toHaveBeenCalledWith('Left "dependency1" as "1.0.0".');
+			expect(console.log).toHaveBeenCalledWith('Left "dependency1" as "1.0.0".');
 		});
 	});
 
@@ -251,19 +245,19 @@ describe('CLIListener', () => {
 		test('outputs when changes were made', () => {
 			CLIListener.handleDependencyMapProcessed('dependencies', {});
 
-			expect(logMock).toHaveBeenCalledWith('No changes made to "dependencies".');
+			expect(console.log).toHaveBeenCalledWith('No changes made to "dependencies".');
 		});
 
 		test('outputs when changes were not made', () => {
 			CLIListener.handleDependencyMapProcessed('dependencies', { dependency1: '1.1.0' });
 
-			expect(logMock).toHaveBeenCalledWith('Updated 1 "dependencies" dependency.');
+			expect(console.log).toHaveBeenCalledWith('Updated 1 "dependencies" dependency.');
 		});
 
 		test('outputs dependency as plural when multiple changes were made', () => {
 			CLIListener.handleDependencyMapProcessed('devDependencies', { dependency1: '1.1.0', dependency2: '1.1.0' });
 
-			expect(logMock).toHaveBeenCalledWith('Updated 2 "devDependencies" dependencies.');
+			expect(console.log).toHaveBeenCalledWith('Updated 2 "devDependencies" dependencies.');
 		});
 	});
 
@@ -271,13 +265,13 @@ describe('CLIListener', () => {
 		test('outputs when no changes were made', () => {
 			CLIListener.handleChangesMade(false);
 
-			expect(logMock).toHaveBeenCalledWith('No changes made.');
+			expect(console.log).toHaveBeenCalledWith('No changes made.');
 		});
 
 		test('not log when changes were made', () => {
 			CLIListener.handleChangesMade(true);
 
-			expect(logMock).not.toHaveBeenCalled();
+			expect(console.log).not.toHaveBeenCalled();
 		});
 	});
 
