@@ -1,6 +1,6 @@
 # NPM Dependency Backdater
 
-![package version badge](https://img.shields.io/badge/npm--dependency--backdater-v2.1.1-blue) ![code coverage badge](https://img.shields.io/badge/coverage-100%25-lime)
+![package version badge](https://img.shields.io/badge/npm--dependency--backdater-v2.2.0-blue) ![code coverage badge](https://img.shields.io/badge/coverage-100%25-lime)
 
 A tool to update NPM dependencies to the latest version available at a specified date.
 
@@ -16,7 +16,7 @@ npm-dependency-backdater package.json 2023-01-01
 ## Options
 
 ```bash
-npm-dependency-backdater <package.json location> <datetime> [--silent] [--strip-prefixes] [--interactive] [--allow-pre-release] [--dry-run]
+npm-dependency-backdater <package.json location> <datetime> [--silent] [--strip-prefixes] [--interactive] [--allow-pre-release] [--dry-run] [--preload-dependencies]
 
 package.json location: The location of the package.json file to update
 datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
@@ -32,6 +32,8 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
   - Whether to allow the latest version to be a pre-release version (e.g. 1.0.0-alpha.1)
 - `--dry-run`
   - Whether to log the changes that would be made without actually making them
+- `--preload-dependencies`
+  - Whether to preload all package names before updating them
 
 ## How it works
 

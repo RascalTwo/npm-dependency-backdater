@@ -24,7 +24,7 @@ describe('fetchPackageVersionDates', () => {
 
 		const result = await fetchPackageVersionDates(packageName);
 
-		expect(fetch).toHaveBeenCalledWith(`https://registry.npmjs.org/${packageName}`);
+		expect(fetchMock).toHaveBeenCalledWith(`https://registry.npmjs.org/${packageName}`);
 		expect(result).toEqual(expectedVersions);
 	});
 

@@ -9,7 +9,7 @@ export default {
 	...BaseListener,
 
 	handleMissingArguments() {
-		console.error(`Usage: npm-dependency-backdater <package.json location> <datetime> [--silent] [--strip-prefixes] [--interactive] [--allow-pre-release] [--dry-run]
+		console.error(`Usage: npm-dependency-backdater <package.json location> <datetime> [--silent] [--strip-prefixes] [--interactive] [--allow-pre-release] [--dry-run] [--preload-dependencies]
 
 package.json location: The location of the package.json file to update
 datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
@@ -19,6 +19,7 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 --interactive: Whether to prompt the user before updating each package version
 --allow-pre-release: Whether to allow the latest version to be a pre-release version (e.g. 1.0.0-alpha.1)
 --dry-run: Whether to log the changes that would be made without actually making them
+--preload-dependencies: Whether to preload all package names before updating them
 		`);
 	},
 
