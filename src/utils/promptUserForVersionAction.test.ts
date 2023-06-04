@@ -1,12 +1,12 @@
-import { generateConsoleMock } from './testHelpers';
+import { generateConsoleMock } from '../testHelpers';
 
-import getEnumFromUser from './utils/getEnumFromUser';
+import getEnumFromUser from './getEnumFromUser';
 
-import promptUserForVersionAction from './utils/promptUserForVersionAction';
+import promptUserForVersionAction from './promptUserForVersionAction';
 
 const getEnumFromUserMock = getEnumFromUser as jest.MockedFunction<typeof getEnumFromUser>;
 
-jest.mock('./utils/getEnumFromUser');
+jest.mock('./getEnumFromUser');
 
 describe('promptUserForVersionAction', () => {
 	const log = jest.fn();
