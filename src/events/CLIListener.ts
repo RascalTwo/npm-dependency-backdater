@@ -9,7 +9,7 @@ export const CLIListenerHandlers = {
 	...BaseListener,
 
 	handleMissingArguments(output: (message: string) => void) {
-		output(`Usage: npm-dependency-backdater <package.json location> <datetime> [--silent] [--tui] [--strip-prefixes] [--interactive] [--allow-pre-release] [--dry-run] [--preload-dependencies]
+		output(`Usage: npm-dependency-backdater <package.json location> <datetime> [--silent] [--tui] [--strip-prefixes] [--interactive] [--allow-pre-release] [--dry-run] [--preload-dependencies] [--no-cache]
 
 package.json location: The location of the package.json file to update
 datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
@@ -21,6 +21,7 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 --allow-pre-release: Whether to allow the latest version to be a pre-release version (e.g. 1.0.0-alpha.1)
 --dry-run: Whether to log the changes that would be made without actually making them
 --preload-dependencies: Whether to preload all package names before updating them
+--no-cache: Whether to ignore the cache when getting package version dates
 		`);
 	},
 

@@ -17,5 +17,6 @@ export default function generateOptions(args: string[]): Options {
 	if (args.includes('--allow-pre-release')) options.allowPreRelease = true;
 	if (args.includes('--dry-run')) options.dryRun = true;
 	if (args.includes('--preload-dependencies')) options.preloadDependencies = true;
+	if (args.includes('--no-cache')) options.noCache = true;
 	return options;
 }

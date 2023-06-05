@@ -9,6 +9,7 @@ export interface Options {
 	allowPreRelease?: boolean;
 	dryRun?: boolean;
 	preloadDependencies?: boolean;
+	noCache?: boolean;
 	listener: BaseEventsListener;
 }
 

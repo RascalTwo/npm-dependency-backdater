@@ -12,7 +12,7 @@ export default async function updateDependencies(dependencyMap: DependencyMap, d
 		const version = parseRawVersion(dependencyMap[packageName]);
 
 		listener.handleGettingPackageVersionDatesStart(packageName);
-		const [versions, cacheDate] = await getPackageVersionDates(packageName, datetime);
+		const [versions, cacheDate] = await getPackageVersionDates(packageName, options.noCache ? new Date() : datetime);
 		listener.handleGettingPackageVersionDatesFinish(packageName, cacheDate, versions);
 
 		const highestVersion = getHighestVersionAtTime(versions, datetime, !options.allowPreRelease);

@@ -16,6 +16,7 @@ describe('generateOptions', () => {
 		['--allow-pre-release', { ...withoutSilent, allowPreRelease: true }],
 		['--dry-run', { ...withoutSilent, dryRun: true }],
 		['--preload-dependencies', { ...withoutSilent, preloadDependencies: true }],
+		['--no-cache', { ...withoutSilent, noCache: true }],
 	])('"%s" flag', (arg, expectedOptions) => {
 		expect(generateOptions([arg])).toMatchObject(expectedOptions);
 	});
