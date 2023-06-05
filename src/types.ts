@@ -10,6 +10,10 @@ export interface Options {
 	dryRun?: boolean;
 	preloadDependencies?: boolean;
 	noCache?: boolean;
+	lock?: {
+		major?: boolean;
+		minor?: boolean;
+	};
 	listener: BaseEventsListener;
 }
 
@@ -25,6 +29,8 @@ export interface ParsedVersion {
 	raw: string;
 	prefix: string | null;
 	version: string;
+	major: number;
+	minor: number;
 }
 
 export type DependencyType = (typeof DEPENDENCY_TYPES)[number];

@@ -12,6 +12,8 @@ describe('parseRawVersion', () => {
 			raw,
 			prefix,
 			version: '1.2.3',
+			major: 1,
+			minor: 2,
 		});
 	});
 
@@ -24,6 +26,8 @@ describe('parseRawVersion', () => {
 			raw,
 			prefix: null,
 			version: raw,
+			major: 1,
+			minor: 2,
 		});
 	});
 
@@ -36,6 +40,8 @@ describe('parseRawVersion', () => {
 			raw,
 			prefix: null,
 			version: raw,
+			major: 1,
+			minor: 2,
 		});
 	});
 });

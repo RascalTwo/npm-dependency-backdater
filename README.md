@@ -16,7 +16,7 @@ npm-dependency-backdater package.json 2023-01-01
 ## Options
 
 ```bash
-npm-dependency-backdater <package.json location> <datetime> [--silent] [--tui] [--strip-prefixes] [--interactive] [--allow-pre-release] [--dry-run] [--preload-dependencies] [--no-cache]
+npm-dependency-backdater <package.json location> <datetime> [--silent] [--tui] [--strip-prefixes] [--interactive] [--allow-pre-release] [--dry-run] [--preload-dependencies] [--no-cache] [--lock-major] [--lock-minor]
 
 package.json location: The location of the package.json file to update
 datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
@@ -38,6 +38,8 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
   - Whether to preload all package names before updating them
 - `--no-cache`
   - Whether to ignore the cache when getting package version dates
+- `--lock-[major/minor]`
+  - Prevent updating the major/minor version of a package
 
 ## How it works
 

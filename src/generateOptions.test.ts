@@ -17,8 +17,16 @@ describe('generateOptions', () => {
 		['--dry-run', { ...withoutSilent, dryRun: true }],
 		['--preload-dependencies', { ...withoutSilent, preloadDependencies: true }],
 		['--no-cache', { ...withoutSilent, noCache: true }],
+		['--lock-minor', { ...withoutSilent, lock: { minor: true } }],
+		['--lock-major', { ...withoutSilent, lock: { major: true } }],
 	])('"%s" flag', async (arg, expectedOptions) => {
 		await expect(generateOptions([arg])).resolves.toMatchObject(expectedOptions);
+	});
+
+	test('unable to lock both major and minor', async () => {
+		await expect(generateOptions(['--lock-minor', '--lock-major'])).rejects.toThrow(
+			'Cannot lock both major and minor versions',
+		);
 	});
 
 	test('everything all at once works', async () => {
@@ -30,6 +38,8 @@ describe('generateOptions', () => {
 				'--allow-pre-release',
 				'--dry-run',
 				'--preload-dependencies',
+				'--no-cache',
+				'--lock-major',
 			]),
 		).resolves.toMatchObject({
 			stripPrefixes: true,
@@ -37,6 +47,8 @@ describe('generateOptions', () => {
 			allowPreRelease: true,
 			dryRun: true,
 			preloadDependencies: true,
+			noCache: true,
+			lock: { major: true },
 		});
 	});
 });

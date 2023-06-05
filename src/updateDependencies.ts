@@ -15,7 +15,19 @@ export default async function updateDependencies(dependencyMap: DependencyMap, d
 		const [versions, cacheDate] = await getPackageVersionDates(packageName, options.noCache ? new Date() : datetime);
 		await listener.handleGettingPackageVersionDatesFinish(packageName, cacheDate, versions);
 
-		const highestVersion = getHighestVersionAtTime(versions, datetime, !options.allowPreRelease);
+		const highestVersion = getHighestVersionAtTime(
+			versions,
+			datetime,
+			!options.allowPreRelease,
+			/* eslint-disable indent */
+			options.lock
+				? {
+						current: [version.major, version.minor],
+						...options.lock,
+				  }
+				: undefined,
+			/* eslint-enable indent */
+		);
 		await listener.handleCalculatedHighestVersion(packageName, version.version, highestVersion);
 		if (highestVersion && version.version !== highestVersion) {
 			const updatedVersion = await listener.handlePromptUserForVersionAction(

@@ -189,19 +189,19 @@ describe('TUIListener', () => {
 		test('handleMissingArguments', async () => {
 			await TUIInstance.handleMissingArguments();
 
-			expect(CLIListenerHandlersMock.handleMissingArguments).toHaveBeenCalledWith(TUIInstance.log);
+			expect(CLIListenerHandlersMock.handleMissingArguments).toHaveBeenCalledWith(expect.any(Function));
 		});
 
 		test('handleInvalidDatetime', async () => {
 			await TUIInstance.handleInvalidDatetime('test');
 
-			expect(CLIListenerHandlersMock.handleInvalidDatetime).toHaveBeenCalledWith(TUIInstance.log, 'test');
+			expect(CLIListenerHandlersMock.handleInvalidDatetime).toHaveBeenCalledWith(expect.any(Function), 'test');
 		});
 
 		test('handleDatetimeInFuture', async () => {
 			await TUIInstance.handleDatetimeInFuture(new Date());
 
-			expect(CLIListenerHandlersMock.handleDatetimeInFuture).toHaveBeenCalledWith(TUIInstance.log, new Date());
+			expect(CLIListenerHandlersMock.handleDatetimeInFuture).toHaveBeenCalledWith(expect.any(Function), new Date());
 		});
 
 		test('handleRunStart', async () => {

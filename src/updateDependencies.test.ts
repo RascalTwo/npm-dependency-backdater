@@ -44,9 +44,9 @@ describe('updateDependencies', () => {
 				dependency1Versions,
 			);
 			expect(getPackageVersionDates).toHaveBeenCalledWith('dependency2', datetime);
-			expect(getHighestVersionAtTime).toHaveBeenCalledWith(dependency1Versions, datetime, true);
+			expect(getHighestVersionAtTime).toHaveBeenCalledWith(dependency1Versions, datetime, true, undefined);
 			expect(listener.handleCalculatedHighestVersion).toHaveBeenCalledWith('dependency1', '1.0.0', '1.0.0');
-			expect(getHighestVersionAtTime).toHaveBeenCalledWith(dependency2Versions, datetime, true);
+			expect(getHighestVersionAtTime).toHaveBeenCalledWith(dependency2Versions, datetime, true, undefined);
 		});
 
 		test('with false strict value when allowPreRelease is true', async () => {
@@ -54,7 +54,7 @@ describe('updateDependencies', () => {
 
 			await updateDependencies(dependencies, datetime, { listener, allowPreRelease: true });
 
-			expect(getHighestVersionAtTime).toHaveBeenCalledWith(dependency1Versions, datetime, false);
+			expect(getHighestVersionAtTime).toHaveBeenCalledWith(dependency1Versions, datetime, false, undefined);
 		});
 
 		test('with current date if caching is disabled', async () => {
@@ -65,6 +65,17 @@ describe('updateDependencies', () => {
 			await updateDependencies(dependencies, datetime, { listener, noCache: true });
 
 			expect(getPackageVersionDates).toHaveBeenCalledWith('dependency1', now);
+		});
+
+		test('with locking information if locking', async () => {
+			getPackageVersionDatesMock.mockResolvedValue([dependency1Versions, datetime]);
+
+			await updateDependencies(dependencies, datetime, { listener, lock: { major: true } });
+
+			expect(getHighestVersionAtTime).toHaveBeenCalledWith(dependency1Versions, datetime, true, {
+				current: [1, 0],
+				major: true,
+			});
 		});
 	});
 
@@ -131,6 +142,8 @@ describe('updateDependencies', () => {
 					raw: '^1.0.0',
 					prefix: '^',
 					version: '1.0.0',
+					major: 1,
+					minor: 0,
 				},
 				'1.1.0',
 				undefined,

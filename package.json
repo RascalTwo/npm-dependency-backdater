@@ -1,6 +1,6 @@
 {
   "name": "npm-dependency-backdater",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "A tool to update NPM dependencies to the latest version available at a specified date",
   "main": "./dist/index.js",
   "scripts": {

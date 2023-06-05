@@ -18,5 +18,10 @@ export default async function generateOptions(args: string[]): Promise<Options> 
 	if (args.includes('--dry-run')) options.dryRun = true;
 	if (args.includes('--preload-dependencies')) options.preloadDependencies = true;
 	if (args.includes('--no-cache')) options.noCache = true;
+	if (args.includes('--lock-major')) options.lock = { major: true };
+	if (args.includes('--lock-minor')) {
+		if (options.lock) throw new Error('Cannot lock both major and minor versions');
+		options.lock = { minor: true };
+	}
 	return options;
 }

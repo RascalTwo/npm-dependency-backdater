@@ -6,6 +6,8 @@ describe('generateVersionActions', () => {
 			raw: '^1.0.0',
 			prefix: '^',
 			version: '1.0.0',
+			major: 1,
+			minor: 0,
 		};
 
 		const result = generateVersionActions(version, '2.0.0');
@@ -22,6 +24,8 @@ describe('generateVersionActions', () => {
 			raw: '1.0.0',
 			prefix: null,
 			version: '1.0.0',
+			major: 1,
+			minor: 0,
 		};
 
 		const result = generateVersionActions(version, '2.0.0');
@@ -37,6 +41,8 @@ describe('generateVersionActions', () => {
 			raw: '^1.0.0',
 			prefix: '^',
 			version: '1.0.0',
+			major: 1,
+			minor: 0,
 		};
 
 		const result = generateVersionActions(version, '2.0.0', true);

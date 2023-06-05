@@ -115,15 +115,15 @@ export default {
 	},
 
 	async handleMissingArguments() {
-		return CLIListenerHandlers.handleMissingArguments.call(this, this.log);
+		return CLIListenerHandlers.handleMissingArguments.call(this, this.log.bind(this));
 	},
 
 	async handleInvalidDatetime(datetimeArg: string) {
-		return CLIListenerHandlers.handleInvalidDatetime.call(this, this.log, datetimeArg);
+		return CLIListenerHandlers.handleInvalidDatetime.call(this, this.log.bind(this), datetimeArg);
 	},
 
 	async handleDatetimeInFuture(datetime: Date) {
-		return CLIListenerHandlers.handleDatetimeInFuture.call(this, this.log, datetime);
+		return CLIListenerHandlers.handleDatetimeInFuture.call(this, this.log.bind(this), datetime);
 	},
 
 	async handleRunStart() {
