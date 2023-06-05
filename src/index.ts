@@ -7,11 +7,11 @@ import updatePackageVersions from './updatePackageVersions';
 export default async function main(packageFilePath: string, datetimeArg: string, options: Options) {
 	const { listener } = options;
 
-	if (!packageFilePath || !datetimeArg) {
+	if (!packageFilePath) {
 		return listener.handleMissingArguments();
 	}
 
-	let datetime = new Date(datetimeArg);
+	let datetime = datetimeArg ? new Date(datetimeArg) : new Date();
 	if (isNaN(datetime.getTime())) {
 		return listener.handleInvalidDatetime(datetimeArg);
 	}
@@ -31,7 +31,7 @@ export default async function main(packageFilePath: string, datetimeArg: string,
 // istanbul ignore next
 if (require.main === module) {
 	generateOptions(process.argv)
-		.then(options => main(process.argv[2], process.argv[3], options))
+		.then(options => main(process.argv[2], process.argv[3].startsWith('--') ? '' : process.argv[3], options))
 		.catch(error => {
 			console.error(error);
 			process.exit(1);

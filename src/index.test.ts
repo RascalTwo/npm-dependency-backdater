@@ -14,14 +14,20 @@ describe('main', () => {
 
 	const listener = generateMockListener();
 
-	test.each([
-		['packageFilePath', ['', datetimeArg]],
-		['datetimeArg', [packageFilePath, '']],
-	] as const)('%s is required', async (_, args) => {
-		await main(args[0], args[1], { listener });
+	test('packageFilePath is required', async () => {
+		await main('', datetimeArg, { listener });
 
 		expect(listener.handleMissingArguments).toHaveBeenCalled();
 		expect(updatePackageVersionsMock).not.toHaveBeenCalled();
+	});
+
+	test('datetimeArg defaults to current date', async () => {
+		const now = new Date();
+		jest.useFakeTimers().setSystemTime(now);
+
+		await main(packageFilePath, '', { listener });
+
+		expect(updatePackageVersionsMock).toHaveBeenCalledWith(packageFilePath, now, { listener });
 	});
 
 	test('correct arguments passed to updatePackageVersions', async () => {

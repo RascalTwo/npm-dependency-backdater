@@ -1,6 +1,6 @@
 # NPM Dependency Backdater
 
-![package version badge](https://img.shields.io/badge/npm--dependency--backdater-v3.0.0-blue) ![code coverage badge](https://img.shields.io/badge/coverage-100%25-lime)
+![package version badge](https://img.shields.io/badge/npm--dependency--backdater-v3.2.0-blue) ![code coverage badge](https://img.shields.io/badge/coverage-100%25-lime)
 
 A tool to update NPM dependencies to the latest version available at a specified date.
 
@@ -11,15 +11,18 @@ For most people they could simply look at their version control history and see 
 ```bash
 npm install -g RascalTwo/npm-dependency-backdater
 npm-dependency-backdater package.json 2023-01-01
+# or to update them all to their latest versions, omit the datetime
+npm-dependency-backdater package.json
 ```
 
 ## Options
 
 ```bash
-npm-dependency-backdater <package.json location> <datetime> [--silent] [--tui] [--strip-prefixes] [--interactive] [--allow-pre-release] [--dry-run] [--preload-dependencies] [--no-cache] [--lock-major] [--lock-minor]
+npm-dependency-backdater <package.json location> [<datetime>] [--silent] [--tui] [--strip-prefixes] [--interactive] [--allow-pre-release] [--dry-run] [--preload-dependencies] [--no-cache] [--lock-major] [--lock-minor]
 
 package.json location: The location of the package.json file to update
 datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
+          Defaults to the current time if not provided
 ```
 
 - `--silent`
