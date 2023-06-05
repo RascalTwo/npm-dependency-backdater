@@ -13,7 +13,7 @@ export default {
 
 	handlePromptUserForVersionAction: CLIListener.handlePromptUserForVersionAction,
 
-	handleMakeChanges(oldPackageJson: object, newPackageJson: object) {
+	async handleMakeChanges(oldPackageJson: object, newPackageJson: object) {
 		return handleMakeChanges.call(
 			this,
 			undefined,

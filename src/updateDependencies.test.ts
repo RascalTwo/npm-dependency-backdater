@@ -57,12 +57,12 @@ describe('updateDependencies', () => {
 			expect(getHighestVersionAtTime).toHaveBeenCalledWith(dependency1Versions, datetime, false);
 		});
 
-		test('with current date if caching is disabled', () => {
+		test('with current date if caching is disabled', async () => {
 			const now = new Date();
 			jest.useFakeTimers().setSystemTime(now);
 			getPackageVersionDatesMock.mockResolvedValue([dependency1Versions, now]);
 
-			updateDependencies(dependencies, datetime, { listener, noCache: true });
+			await updateDependencies(dependencies, datetime, { listener, noCache: true });
 
 			expect(getPackageVersionDates).toHaveBeenCalledWith('dependency1', now);
 		});

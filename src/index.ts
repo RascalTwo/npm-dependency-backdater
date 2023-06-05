@@ -16,22 +16,24 @@ export default async function main(packageFilePath: string, datetimeArg: string,
 		return listener.handleInvalidDatetime(datetimeArg);
 	}
 	if (datetime.getTime() > Date.now()) {
-		datetime = listener.handleDatetimeInFuture(datetime);
+		datetime = await listener.handleDatetimeInFuture(datetime);
 	}
 
-	listener.initialize(packageFilePath, datetime, options);
+	await listener.initialize(packageFilePath, datetime, options);
 
-	listener.handleRunStart();
+	await listener.handleRunStart();
 
 	await updatePackageVersions(packageFilePath, datetime, options);
 
-	listener.handleRunFinish();
+	return listener.handleRunFinish();
 }
 
 // istanbul ignore next
 if (require.main === module) {
-	main(process.argv[2], process.argv[3], generateOptions(process.argv)).catch(error => {
-		console.error(error);
-		process.exit(1);
-	});
+	generateOptions(process.argv)
+		.then(options => main(process.argv[2], process.argv[3], options))
+		.catch(error => {
+			console.error(error);
+			process.exit(1);
+		});
 }

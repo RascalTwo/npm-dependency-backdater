@@ -6,36 +6,47 @@ const BaseEvents = {
 	packageFilePath: '',
 	datetime: new Date(),
 	options: {} as Options,
-	initialize(packageFilePath: string, datetime: Date, options: Options): void {
+	async initialize(packageFilePath: string, datetime: Date, options: Options): Promise<void> {
 		this.packageFilePath = packageFilePath;
 		this.datetime = datetime;
 		this.options = options;
 	},
-	clone() {
+	async clone() {
 		const clone = { ...this, options: { ...this.options, listener: this } };
 		clone.options.listener = clone;
 		return clone;
 	},
-	handleMissingArguments(): void {},
-	handleInvalidDatetime(datetime: string): void {},
-	handleDatetimeInFuture(datetime: Date): Date {
+	async handleMissingArguments(): Promise<void> {},
+	async handleInvalidDatetime(datetime: string): Promise<void> {},
+	async handleDatetimeInFuture(datetime: Date): Promise<Date> {
 		throw new Error('Not implemented');
 	},
-	handleRunStart(): void {},
-	handleRunFinish(): void {},
-	handleReadingPackageFileStart(): void {},
-	handleReadingPackageFileFinish(content: string): void {},
-	handleDiscoveringDependencyMapStart(map: DependencyType): void {},
-	handleDiscoveringDependencyMapFinish(map: DependencyType, dependencyMap?: DependencyMap | undefined): void {},
-	handleGettingPackageVersionDatesStart(packageName: string): void {},
-	handleGettingPackageVersionDatesFinish(packageName: string, cacheDate: Date, versions: VersionMap): void {},
-	handleCalculatedHighestVersion(packageName: string, version: string, highestVersion: string | null): void {},
+	async handleRunStart(): Promise<void> {},
+	async handleRunFinish(): Promise<void> {},
+	async handleReadingPackageFileStart(): Promise<void> {},
+	async handleReadingPackageFileFinish(content: string): Promise<void> {},
+	async handleDiscoveringDependencyMapStart(map: DependencyType): Promise<void> {},
+	async handleDiscoveringDependencyMapFinish(
+		map: DependencyType,
+		dependencyMap?: DependencyMap | undefined,
+	): Promise<void> {},
+	async handleGettingPackageVersionDatesStart(packageName: string): Promise<void> {},
+	async handleGettingPackageVersionDatesFinish(
+		packageName: string,
+		cacheDate: Date,
+		versions: VersionMap,
+	): Promise<void> {},
+	async handleCalculatedHighestVersion(
+		packageName: string,
+		version: string,
+		highestVersion: string | null,
+	): Promise<void> {},
 	async handlePromptUserForVersionAction(packageName: string, actions: VersionAction[]): Promise<string> {
 		throw new Error('Not implemented');
 	},
-	handleDependencyProcessed(packageName: string, version: { old: string; new: string }): void {},
-	handleDependencyMapProcessed(map: DependencyType, updates: DependencyMap): void {},
-	handleChangesMade(changesMade: boolean): void {},
+	async handleDependencyProcessed(packageName: string, version: { old: string; new: string }): Promise<void> {},
+	async handleDependencyMapProcessed(map: DependencyType, updates: DependencyMap): Promise<void> {},
+	async handleChangesMade(changesMade: boolean): Promise<void> {},
 	async handleMakeChanges(oldPackageJson: object, newPackageJson: object): Promise<void> {
 		throw new Error('Not implemented');
 	},

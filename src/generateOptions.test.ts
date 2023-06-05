@@ -17,12 +17,12 @@ describe('generateOptions', () => {
 		['--dry-run', { ...withoutSilent, dryRun: true }],
 		['--preload-dependencies', { ...withoutSilent, preloadDependencies: true }],
 		['--no-cache', { ...withoutSilent, noCache: true }],
-	])('"%s" flag', (arg, expectedOptions) => {
-		expect(generateOptions([arg])).toMatchObject(expectedOptions);
+	])('"%s" flag', async (arg, expectedOptions) => {
+		await expect(generateOptions([arg])).resolves.toMatchObject(expectedOptions);
 	});
 
-	test('everything all at once works', () => {
-		expect(
+	test('everything all at once works', async () => {
+		await expect(
 			generateOptions([
 				'--silent',
 				'--strip-prefixes',
@@ -31,7 +31,7 @@ describe('generateOptions', () => {
 				'--dry-run',
 				'--preload-dependencies',
 			]),
-		).toMatchObject({
+		).resolves.toMatchObject({
 			stripPrefixes: true,
 			interactive: true,
 			allowPreRelease: true,

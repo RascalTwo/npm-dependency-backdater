@@ -14,20 +14,20 @@ describe('TUIListener', () => {
 	describe('rendering', () => {
 		let TUIInstance: typeof TUIListener;
 
-		beforeEach(() => {
-			TUIInstance = TUIListener.clone();
+		beforeEach(async () => {
+			TUIInstance = await TUIListener.clone();
 		});
 
 		beforeAll(() => {
 			jest.useFakeTimers().setSystemTime(new Date('2023-06-05').getTime());
 		});
 
-		test('minimal frame is rendered', () => {
+		test('minimal frame is rendered', async () => {
 			process.stdout.columns = 80;
 			process.stdout.rows = 11;
-			TUIInstance.initialize('package.json', new Date(), {} as Options);
+			await TUIInstance.initialize('package.json', new Date(), {} as Options);
 
-			TUIInstance.render();
+			await TUIInstance.render();
 
 			expect(console.clear).toHaveBeenCalled();
 			expect(console.log).toHaveBeenCalled();
@@ -43,15 +43,15 @@ describe('TUIListener', () => {
 		`);
 		});
 
-		test('progress is accurate', () => {
+		test('progress is accurate', async () => {
 			process.stdout.columns = 80;
 			process.stdout.rows = 11;
-			TUIInstance.initialize('package.json', new Date(), {} as Options);
+			await TUIInstance.initialize('package.json', new Date(), {} as Options);
 			TUIInstance.counts.packages = 10;
 			TUIInstance.counts.processed = 5;
 			TUIInstance.counts.updated = 2;
 
-			TUIInstance.render();
+			await TUIInstance.render();
 
 			expect(console.clear).toHaveBeenCalled();
 			expect(console.log).toHaveBeenCalled();
@@ -67,14 +67,14 @@ describe('TUIListener', () => {
 		`);
 		});
 
-		test('breadcrumbs is accurate', () => {
+		test('breadcrumbs is accurate', async () => {
 			process.stdout.columns = 80;
 			process.stdout.rows = 11;
-			TUIInstance.initialize('package.json', new Date(), {} as Options);
+			await TUIInstance.initialize('package.json', new Date(), {} as Options);
 			TUIInstance.current.dependencyType = 'dependencies';
 			TUIInstance.current.packageName = 'test-package';
 
-			TUIInstance.render();
+			await TUIInstance.render();
 
 			expect(console.clear).toHaveBeenCalled();
 			expect(console.log).toHaveBeenCalled();
@@ -90,13 +90,13 @@ describe('TUIListener', () => {
 		`);
 		});
 
-		test('only latest messages are rendered', () => {
+		test('only latest messages are rendered', async () => {
 			process.stdout.columns = 80;
 			process.stdout.rows = 11;
-			TUIInstance.initialize('package.json', new Date(), {} as Options);
+			await TUIInstance.initialize('package.json', new Date(), {} as Options);
 			TUIInstance.messages = ['test message 1', 'test message 2', 'test message 3'];
 
-			TUIInstance.render();
+			await TUIInstance.render();
 
 			expect(console.clear).toHaveBeenCalled();
 			expect(console.log).toHaveBeenCalled();
@@ -113,12 +113,12 @@ describe('TUIListener', () => {
 		});
 	});
 
-	test('splits messages up by line length', () => {
-		const TUIInstance = TUIListener.clone();
+	test('splits messages up by line length', async () => {
+		const TUIInstance = await TUIListener.clone();
 		process.stdout.columns = 20;
 		process.stdout.rows = 15;
 
-		TUIInstance.log('aaaaaaaaaaaaaaa');
+		await TUIInstance.log('aaaaaaaaaaaaaaa');
 
 		expect(console.clear).toHaveBeenCalled();
 		expect(console.log).toHaveBeenCalled();
@@ -134,18 +134,18 @@ describe('TUIListener', () => {
 	`);
 	});
 
-	test('preloadDependencies is forced on', () => {
-		const TUIInstance = TUIListener.clone();
+	test('preloadDependencies is forced on', async () => {
+		const TUIInstance = await TUIListener.clone();
 
-		TUIInstance.initialize('package.json', new Date(), {} as Options);
+		await TUIInstance.initialize('package.json', new Date(), {} as Options);
 
 		expect(TUIInstance.options.preloadDependencies).toBe(true);
 	});
 
-	test('handleDiscoveringDependencyMapStart updates current dependencyType', () => {
-		const TUIInstance = TUIListener.clone();
+	test('handleDiscoveringDependencyMapStart updates current dependencyType', async () => {
+		const TUIInstance = await TUIListener.clone();
 
-		TUIInstance.handleDiscoveringDependencyMapStart('dependencies');
+		await TUIInstance.handleDiscoveringDependencyMapStart('dependencies');
 
 		expect(TUIInstance.current.dependencyType).toBe('dependencies');
 	});
@@ -153,27 +153,30 @@ describe('TUIListener', () => {
 	test.each([
 		['', { a: 'b' }],
 		[" when there's no dependency map", undefined],
-	])('handleDiscoveringDependencyMapFinish updates package count and internal dependency map%s', (_, dependencyMap) => {
-		const TUIInstance = TUIListener.clone();
-		TUIInstance.counts.packages = 5;
+	])(
+		'handleDiscoveringDependencyMapFinish updates package count and internal dependency map%s',
+		async (_, dependencyMap) => {
+			const TUIInstance = await TUIListener.clone();
+			TUIInstance.counts.packages = 5;
 
-		TUIInstance.handleDiscoveringDependencyMapFinish('dependencies', dependencyMap);
+			await TUIInstance.handleDiscoveringDependencyMapFinish('dependencies', dependencyMap);
 
-		expect(TUIInstance.counts.packages).toBe(dependencyMap ? 6 : 5);
-		expect(TUIInstance.dependencyMaps).toEqual({
-			dependencies: dependencyMap ?? {},
-		});
-	});
+			expect(TUIInstance.counts.packages).toBe(dependencyMap ? 6 : 5);
+			expect(TUIInstance.dependencyMaps).toEqual({
+				dependencies: dependencyMap ?? {},
+			});
+		},
+	);
 
-	test('handleGettingPackageVersionDatesStart updates current dependencyType and packageName', () => {
-		const TUIInstance = TUIListener.clone();
+	test('handleGettingPackageVersionDatesStart updates current dependencyType and packageName', async () => {
+		const TUIInstance = await TUIListener.clone();
 		TUIInstance.current.dependencyType = 'dependencies';
 		TUIInstance.dependencyMaps = {
 			devDependencies: {
 				'test-package': 'b',
 			},
 		};
-		TUIInstance.handleGettingPackageVersionDatesStart('test-package');
+		await TUIInstance.handleGettingPackageVersionDatesStart('test-package');
 
 		expect(TUIInstance.current.dependencyType).toBe('devDependencies');
 		expect(TUIInstance.current.packageName).toBe('test-package');
@@ -181,46 +184,46 @@ describe('TUIListener', () => {
 
 	describe('calls CLIListenerHandlers', () => {
 		let TUIInstance: typeof TUIListener;
-		beforeEach(() => (TUIInstance = TUIListener.clone()));
+		beforeEach(async () => (TUIInstance = await TUIListener.clone()));
 
-		test('handleMissingArguments', () => {
-			TUIInstance.handleMissingArguments();
+		test('handleMissingArguments', async () => {
+			await TUIInstance.handleMissingArguments();
 
 			expect(CLIListenerHandlersMock.handleMissingArguments).toHaveBeenCalledWith(TUIInstance.log);
 		});
 
-		test('handleInvalidDatetime', () => {
-			TUIInstance.handleInvalidDatetime('test');
+		test('handleInvalidDatetime', async () => {
+			await TUIInstance.handleInvalidDatetime('test');
 
 			expect(CLIListenerHandlersMock.handleInvalidDatetime).toHaveBeenCalledWith(TUIInstance.log, 'test');
 		});
 
-		test('handleDatetimeInFuture', () => {
-			TUIInstance.handleDatetimeInFuture(new Date());
+		test('handleDatetimeInFuture', async () => {
+			await TUIInstance.handleDatetimeInFuture(new Date());
 
 			expect(CLIListenerHandlersMock.handleDatetimeInFuture).toHaveBeenCalledWith(TUIInstance.log, new Date());
 		});
 
-		test('handleRunStart', () => {
-			TUIInstance.handleRunStart();
+		test('handleRunStart', async () => {
+			await TUIInstance.handleRunStart();
 
 			expect(CLIListenerHandlersMock.handleRunStart).toHaveBeenCalledWith(TUIInstance.log);
 		});
 
-		test('handleReadingPackageFileStart', () => {
-			TUIInstance.handleReadingPackageFileStart();
+		test('handleReadingPackageFileStart', async () => {
+			await TUIInstance.handleReadingPackageFileStart();
 
 			expect(CLIListenerHandlersMock.handleReadingPackageFileStart).toHaveBeenCalledWith(TUIInstance.log);
 		});
 
-		test('handleReadingPackageFileFinish', () => {
-			TUIInstance.handleReadingPackageFileFinish('content');
+		test('handleReadingPackageFileFinish', async () => {
+			await TUIInstance.handleReadingPackageFileFinish('content');
 
 			expect(CLIListenerHandlersMock.handleReadingPackageFileFinish).toHaveBeenCalledWith(TUIInstance.log, 'content');
 		});
 
-		test('handleDiscoveringDependencyMapStart', () => {
-			TUIInstance.handleDiscoveringDependencyMapStart('dependencies');
+		test('handleDiscoveringDependencyMapStart', async () => {
+			await TUIInstance.handleDiscoveringDependencyMapStart('dependencies');
 
 			expect(CLIListenerHandlersMock.handleDiscoveringDependencyMapStart).toHaveBeenCalledWith(
 				TUIInstance.log,
@@ -228,8 +231,8 @@ describe('TUIListener', () => {
 			);
 		});
 
-		test('handleDiscoveringDependencyMapFinish', () => {
-			TUIInstance.handleDiscoveringDependencyMapFinish('dependencies', { a: 'b' });
+		test('handleDiscoveringDependencyMapFinish', async () => {
+			await TUIInstance.handleDiscoveringDependencyMapFinish('dependencies', { a: 'b' });
 
 			expect(CLIListenerHandlersMock.handleDiscoveringDependencyMapFinish).toHaveBeenCalledWith(
 				TUIInstance.log,
@@ -238,8 +241,8 @@ describe('TUIListener', () => {
 			);
 		});
 
-		test('handleGettingPackageVersionDatesStart', () => {
-			TUIInstance.handleGettingPackageVersionDatesStart('test-package');
+		test('handleGettingPackageVersionDatesStart', async () => {
+			await TUIInstance.handleGettingPackageVersionDatesStart('test-package');
 
 			expect(CLIListenerHandlersMock.handleGettingPackageVersionDatesStart).toHaveBeenCalledWith(
 				TUIInstance.log,
@@ -247,9 +250,9 @@ describe('TUIListener', () => {
 			);
 		});
 
-		test('handleGettingPackageVersionDatesFinish', () => {
+		test('handleGettingPackageVersionDatesFinish', async () => {
 			const cacheDate = new Date();
-			TUIInstance.handleGettingPackageVersionDatesFinish('test-package', cacheDate, { a: 'b' });
+			await TUIInstance.handleGettingPackageVersionDatesFinish('test-package', cacheDate, { a: 'b' });
 
 			expect(CLIListenerHandlersMock.handleGettingPackageVersionDatesFinish).toHaveBeenCalledWith(
 				TUIInstance.log,
@@ -259,8 +262,8 @@ describe('TUIListener', () => {
 			);
 		});
 
-		test('handleCalculatedHighestVersion', () => {
-			TUIInstance.handleCalculatedHighestVersion('test-package', '1.0.0', '1.1.0');
+		test('handleCalculatedHighestVersion', async () => {
+			await TUIInstance.handleCalculatedHighestVersion('test-package', '1.0.0', '1.1.0');
 
 			expect(CLIListenerHandlersMock.handleCalculatedHighestVersion).toHaveBeenCalledWith(
 				TUIInstance.log,
@@ -280,8 +283,8 @@ describe('TUIListener', () => {
 			);
 		});
 
-		test('handleDependencyMapProcessed', () => {
-			TUIInstance.handleDependencyMapProcessed('dependencies', {});
+		test('handleDependencyMapProcessed', async () => {
+			await TUIInstance.handleDependencyMapProcessed('dependencies', {});
 
 			expect(CLIListenerHandlersMock.handleDependencyMapProcessed).toHaveBeenCalledWith(
 				TUIInstance.log,
@@ -290,53 +293,53 @@ describe('TUIListener', () => {
 			);
 		});
 
-		test('handleChangesMade', () => {
-			TUIInstance.handleChangesMade(false);
+		test('handleChangesMade', async () => {
+			await TUIInstance.handleChangesMade(false);
 
 			expect(CLIListenerHandlersMock.handleChangesMade).toHaveBeenCalledWith(TUIInstance.log, false);
 		});
 
-		test('handleMakeChanges', () => {
-			TUIInstance.handleMakeChanges({}, {});
+		test('handleMakeChanges', async () => {
+			await TUIInstance.handleMakeChanges({}, {});
 
 			expect(CLIListenerMock.handleMakeChanges).toHaveBeenCalledWith({}, {});
 		});
 	});
 
 	describe('handleDependencyProcessed', () => {
-		test('updates processed count', () => {
-			const TUIInstance = TUIListener.clone();
+		test('updates processed count', async () => {
+			const TUIInstance = await TUIListener.clone();
 			TUIInstance.counts.processed = 5;
 
-			TUIInstance.handleDependencyProcessed('test-package', { old: '1', new: '1' });
+			await TUIInstance.handleDependencyProcessed('test-package', { old: '1', new: '1' });
 
 			expect(TUIInstance.counts.processed).toBe(6);
 		});
 
-		test('updates updated count', () => {
-			const TUIInstance = TUIListener.clone();
+		test('updates updated count', async () => {
+			const TUIInstance = await TUIListener.clone();
 			TUIInstance.counts.updated = 5;
 
-			TUIInstance.handleDependencyProcessed('test-package', { old: '1', new: '2' });
+			await TUIInstance.handleDependencyProcessed('test-package', { old: '1', new: '2' });
 
 			expect(TUIInstance.counts.updated).toBe(6);
 		});
 	});
 
-	test('handleDependencyMapProcessed clears current packageName', () => {
-		const TUIInstance = TUIListener.clone();
+	test('handleDependencyMapProcessed clears current packageName', async () => {
+		const TUIInstance = await TUIListener.clone();
 		TUIInstance.current.packageName = 'test-package';
 
-		TUIInstance.handleDependencyMapProcessed('dependencies', {});
+		await TUIInstance.handleDependencyMapProcessed('dependencies', {});
 
 		expect(TUIInstance.current.packageName).toBe(null);
 	});
 
-	test('handleChangesMade clears current dependencyType', () => {
-		const TUIInstance = TUIListener.clone();
+	test('handleChangesMade clears current dependencyType', async () => {
+		const TUIInstance = await TUIListener.clone();
 		TUIInstance.current.dependencyType = 'dependencies';
 
-		TUIInstance.handleChangesMade(false);
+		await TUIInstance.handleChangesMade(false);
 
 		expect(TUIInstance.current.dependencyType).toBe(null);
 	});

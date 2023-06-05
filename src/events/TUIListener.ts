@@ -21,7 +21,7 @@ export default {
 
 	messages: [] as string[],
 
-	initialize(packageFilePath: string, datetime: Date, options: Options): void {
+	async initialize(packageFilePath: string, datetime: Date, options: Options) {
 		this.packageFilePath = packageFilePath;
 		this.datetime = datetime;
 		this.options = options;
@@ -32,7 +32,7 @@ export default {
 
 		this.log = this.log.bind(this);
 	},
-	clone() {
+	async clone() {
 		const clone = {
 			...this,
 			options: { ...this.options, listener: this },
@@ -43,7 +43,7 @@ export default {
 		clone.options.listener = clone;
 		return clone;
 	},
-	render() {
+	async render() {
 		const width = process.stdout.columns - 4;
 		const height = process.stdout.rows - 4;
 		console.clear();
@@ -114,42 +114,42 @@ export default {
 		this.render();
 	},
 
-	handleMissingArguments() {
+	async handleMissingArguments() {
 		return CLIListenerHandlers.handleMissingArguments.call(this, this.log);
 	},
 
-	handleInvalidDatetime(datetimeArg: string) {
+	async handleInvalidDatetime(datetimeArg: string) {
 		return CLIListenerHandlers.handleInvalidDatetime.call(this, this.log, datetimeArg);
 	},
 
-	handleDatetimeInFuture(datetime: Date) {
+	async handleDatetimeInFuture(datetime: Date) {
 		return CLIListenerHandlers.handleDatetimeInFuture.call(this, this.log, datetime);
 	},
 
-	handleRunStart() {
+	async handleRunStart() {
 		return CLIListenerHandlers.handleRunStart.call(this, this.log);
 	},
 
-	handleReadingPackageFileStart() {
+	async handleReadingPackageFileStart() {
 		return CLIListenerHandlers.handleReadingPackageFileStart.call(this, this.log);
 	},
 
-	handleReadingPackageFileFinish(content: string) {
+	async handleReadingPackageFileFinish(content: string) {
 		return CLIListenerHandlers.handleReadingPackageFileFinish.call(this, this.log, content);
 	},
 
-	handleDiscoveringDependencyMapStart(map: DependencyType) {
+	async handleDiscoveringDependencyMapStart(map: DependencyType) {
 		this.current.dependencyType = map;
 		return CLIListenerHandlers.handleDiscoveringDependencyMapStart.call(this, this.log, map);
 	},
 
-	handleDiscoveringDependencyMapFinish(map: DependencyType, dependencyMap?: DependencyMap): void {
+	async handleDiscoveringDependencyMapFinish(map: DependencyType, dependencyMap?: DependencyMap) {
 		this.counts.packages += Object.keys(dependencyMap ?? {}).length;
 		this.dependencyMaps[map] = dependencyMap ?? {};
 		return CLIListenerHandlers.handleDiscoveringDependencyMapFinish.call(this, this.log, map, dependencyMap);
 	},
 
-	handleGettingPackageVersionDatesStart(packageName: string): void {
+	async handleGettingPackageVersionDatesStart(packageName: string) {
 		for (const dependencyType of Object.keys(this.dependencyMaps)) {
 			if (packageName in (this.dependencyMaps[dependencyType as DependencyType] as DependencyMap)) {
 				this.current.dependencyType = dependencyType as DependencyType;
@@ -161,7 +161,7 @@ export default {
 		return CLIListenerHandlers.handleGettingPackageVersionDatesStart.call(this, this.log, packageName);
 	},
 
-	handleGettingPackageVersionDatesFinish(packageName: string, cacheDate: Date, versions: VersionMap): void {
+	async handleGettingPackageVersionDatesFinish(packageName: string, cacheDate: Date, versions: VersionMap) {
 		return CLIListenerHandlers.handleGettingPackageVersionDatesFinish.call(
 			this,
 			this.log,
@@ -171,7 +171,7 @@ export default {
 		);
 	},
 
-	handleCalculatedHighestVersion(packageName: string, version: string, highestVersion: string | null): void {
+	async handleCalculatedHighestVersion(packageName: string, version: string, highestVersion: string | null) {
 		return CLIListenerHandlers.handleCalculatedHighestVersion.call(
 			this,
 			this.log,
@@ -185,7 +185,7 @@ export default {
 		return CLIListenerHandlers.handlePromptUserForVersionAction.call(this, this.log, packageName, actions);
 	},
 
-	handleDependencyProcessed(packageName: string, version: { old: string; new: string }): void {
+	async handleDependencyProcessed(packageName: string, version: { old: string; new: string }) {
 		this.counts.processed++;
 		if (version.old !== version.new) {
 			this.counts.updated++;
@@ -193,12 +193,12 @@ export default {
 		return CLIListenerHandlers.handleDependencyProcessed.call(this, this.log, packageName, version);
 	},
 
-	handleDependencyMapProcessed(map: DependencyType, updates: DependencyMap): void {
+	async handleDependencyMapProcessed(map: DependencyType, updates: DependencyMap) {
 		this.current.packageName = null;
 		return CLIListenerHandlers.handleDependencyMapProcessed.call(this, this.log, map, updates);
 	},
 
-	handleChangesMade(changesMade: boolean): void {
+	async handleChangesMade(changesMade: boolean) {
 		this.current.dependencyType = null;
 		return CLIListenerHandlers.handleChangesMade.call(this, this.log, changesMade);
 	},

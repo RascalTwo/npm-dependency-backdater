@@ -51,7 +51,7 @@ describe('SilentListener default handlers are all silent', () => {
 	});
 
 	test('handleMakeChanges is called with logging disabled', async () => {
-		SilentListener.initialize('filepath', new Date(), {} as Options);
+		await SilentListener.initialize('filepath', new Date(), {} as Options);
 
 		await SilentListener.handleMakeChanges({ old: true }, { new: true });
 

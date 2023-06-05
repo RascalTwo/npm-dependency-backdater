@@ -26,10 +26,10 @@ export const generateMockListener = () => {
 
 const TEST_MAP = {
 	initialize: (listener: BaseEventsListener, expectResult: (result: unknown) => void) =>
-		test('initialize', () => expectResult(listener.initialize('', new Date(), {} as Options))),
+		test('initialize', async () => expectResult(await listener.initialize('', new Date(), {} as Options))),
 	clone: (listener: BaseEventsListener, expectResult: (result: unknown) => void) =>
-		test('clone', () => {
-			const cloned = listener.clone();
+		test('clone', async () => {
+			const cloned = await listener.clone();
 
 			expectResult(undefined);
 			expect(cloned).not.toBe(listener);
@@ -38,47 +38,50 @@ const TEST_MAP = {
 			expect(cloned).toMatchObject(listener);
 		}),
 	handleMissingArguments: (listener: BaseEventsListener, expectResult: (result: unknown) => void) =>
-		test('handleMissingArguments', () => expectResult(listener.handleMissingArguments())),
+		test('handleMissingArguments', async () => expectResult(await listener.handleMissingArguments())),
 	handleInvalidDatetime: (listener: BaseEventsListener, expectResult: (result: unknown) => void) =>
-		test('handleInvalidDatetime', () => expectResult(listener.handleInvalidDatetime(''))),
+		test('handleInvalidDatetime', async () => expectResult(await listener.handleInvalidDatetime(''))),
 	handleDatetimeInFuture: (listener: BaseEventsListener, expectResult: (result: unknown) => void) =>
 		test('handleDatetimeInFuture', () => {
-			expect(() => listener.handleDatetimeInFuture(new Date())).toThrowError('Not implemented');
+			expect(listener.handleDatetimeInFuture(new Date())).rejects.toThrowError('Not implemented');
 			expectResult(undefined);
 		}),
 	handleRunStart: (listener: BaseEventsListener, expectResult: (result: unknown) => void) =>
-		test('handleRunStart', () => expectResult(listener.handleRunStart())),
+		test('handleRunStart', async () => expectResult(await listener.handleRunStart())),
 	handleRunFinish: (listener: BaseEventsListener, expectResult: (result: unknown) => void) =>
-		test('handleRunFinish', () => expectResult(listener.handleRunFinish())),
+		test('handleRunFinish', async () => expectResult(await listener.handleRunFinish())),
 	handleReadingPackageFileStart: (listener: BaseEventsListener, expectResult: (result: unknown) => void) =>
-		test('handleReadingPackageFileStart', () => expectResult(listener.handleReadingPackageFileStart())),
+		test('handleReadingPackageFileStart', async () => expectResult(await listener.handleReadingPackageFileStart())),
 	handleReadingPackageFileFinish: (listener: BaseEventsListener, expectResult: (result: unknown) => void) =>
-		test('handleReadingPackageFileFinish', () => expectResult(listener.handleReadingPackageFileFinish(''))),
+		test('handleReadingPackageFileFinish', async () => expectResult(await listener.handleReadingPackageFileFinish(''))),
 	handleDiscoveringDependencyMapStart: (listener: BaseEventsListener, expectResult: (result: unknown) => void) =>
-		test('handleDiscoveringDependencyMapStart', () =>
-			expectResult(listener.handleDiscoveringDependencyMapStart('dependencies'))),
+		test('handleDiscoveringDependencyMapStart', async () =>
+			expectResult(await listener.handleDiscoveringDependencyMapStart('dependencies'))),
 	handleDiscoveringDependencyMapFinish: (listener: BaseEventsListener, expectResult: (result: unknown) => void) =>
-		test('handleDiscoveringDependencyMapFinish', () =>
-			expectResult(listener.handleDiscoveringDependencyMapFinish('dependencies'))),
+		test('handleDiscoveringDependencyMapFinish', async () =>
+			expectResult(await listener.handleDiscoveringDependencyMapFinish('dependencies'))),
 	handleGettingPackageVersionDatesStart: (listener: BaseEventsListener, expectResult: (result: unknown) => void) =>
-		test('handleGettingPackageVersionDatesStart', () =>
-			expectResult(listener.handleGettingPackageVersionDatesStart(''))),
+		test('handleGettingPackageVersionDatesStart', async () =>
+			expectResult(await listener.handleGettingPackageVersionDatesStart(''))),
 	handleGettingPackageVersionDatesFinish: (listener: BaseEventsListener, expectResult: (result: unknown) => void) =>
-		test('handleGettingPackageVersionDatesFinish', () =>
-			expectResult(listener.handleGettingPackageVersionDatesFinish('', new Date(), {}))),
+		test('handleGettingPackageVersionDatesFinish', async () =>
+			expectResult(await listener.handleGettingPackageVersionDatesFinish('', new Date(), {}))),
 	handleCalculatedHighestVersion: (listener: BaseEventsListener, expectResult: (result: unknown) => void) =>
-		test('handleCalculatedHighestVersion', () => expectResult(listener.handleCalculatedHighestVersion('', '', ''))),
+		test('handleCalculatedHighestVersion', async () =>
+			expectResult(await listener.handleCalculatedHighestVersion('', '', ''))),
 	handlePromptUserForVersionAction: (listener: BaseEventsListener, expectResult: (result: unknown) => void) =>
 		test('handlePromptUserForVersionAction', async () => {
 			await expect(listener.handlePromptUserForVersionAction('', [])).rejects.toThrowError('Not implemented');
 			expectResult(undefined);
 		}),
 	handleDependencyProcessed: (listener: BaseEventsListener, expectResult: (result: unknown) => void) =>
-		test('handleDependencyProcessed', () => expectResult(listener.handleDependencyProcessed('', { old: '', new: '' }))),
+		test('handleDependencyProcessed', async () =>
+			expectResult(await listener.handleDependencyProcessed('', { old: '', new: '' }))),
 	handleDependencyMapProcessed: (listener: BaseEventsListener, expectResult: (result: unknown) => void) =>
-		test('handleDependencyMapProcessed', () => expectResult(listener.handleDependencyMapProcessed('dependencies', {}))),
+		test('handleDependencyMapProcessed', async () =>
+			expectResult(await listener.handleDependencyMapProcessed('dependencies', {}))),
 	handleChangesMade: (listener: BaseEventsListener, expectResult: (result: unknown) => void) =>
-		test('handleChangesMade', () => expectResult(listener.handleChangesMade(false))),
+		test('handleChangesMade', async () => expectResult(await listener.handleChangesMade(false))),
 	handleMakeChanges: (listener: BaseEventsListener, expectResult: (result: unknown) => void) =>
 		test('handleMakeChanges', async () => {
 			await expect(listener.handleMakeChanges({}, {})).rejects.toThrowError('Not implemented');

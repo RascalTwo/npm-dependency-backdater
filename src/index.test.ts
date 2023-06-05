@@ -44,7 +44,7 @@ describe('main', () => {
 	test('datetime returned by listener.handleDatetimeInFuture is used', async () => {
 		const invalidDatetimeArg = '4000-01-01';
 		const correctedDatetime = new Date('2022-01-01T00:00:00Z');
-		listener.handleDatetimeInFuture.mockReturnValueOnce(correctedDatetime);
+		listener.handleDatetimeInFuture.mockResolvedValueOnce(correctedDatetime);
 
 		await main(packageFilePath, invalidDatetimeArg, { listener });
 

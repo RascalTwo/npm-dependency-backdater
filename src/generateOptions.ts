@@ -3,14 +3,14 @@ import type { Options } from './types';
 import SilentListener from './events/SilentListener';
 import TUIListener from './events/TUIListener';
 
-export default function generateOptions(args: string[]): Options {
+export default async function generateOptions(args: string[]): Promise<Options> {
 	const options: Options = {
 		// prettier-ignore
 		listener: args.includes('--tui')
-			? TUIListener.clone()
+			? await TUIListener.clone()
 			: args.includes('--silent')
-				? SilentListener.clone()
-				: CLIListener.clone(),
+				? await SilentListener.clone()
+				: await CLIListener.clone(),
 	};
 	if (args.includes('--strip-prefixes')) options.stripPrefixes = true;
 	if (args.includes('--interactive')) options.interactive = true;

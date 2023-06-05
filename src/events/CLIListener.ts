@@ -8,7 +8,7 @@ import promptUserForVersionAction from '../utils/promptUserForVersionAction';
 export const CLIListenerHandlers = {
 	...BaseListener,
 
-	handleMissingArguments(output: (message: string) => void) {
+	async handleMissingArguments(output: (message: string) => void) {
 		output(`Usage: npm-dependency-backdater <package.json location> <datetime> [--silent] [--tui] [--strip-prefixes] [--interactive] [--allow-pre-release] [--dry-run] [--preload-dependencies] [--no-cache]
 
 package.json location: The location of the package.json file to update
@@ -25,18 +25,18 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 		`);
 	},
 
-	handleInvalidDatetime(output: (message: string) => void, datetimeArg: string) {
+	async handleInvalidDatetime(output: (message: string) => void, datetimeArg: string) {
 		output(`Expected a valid datetime (YYYY-MM-DDTHH:mm:ssZ) but received "${datetimeArg}".`);
 	},
 
-	handleDatetimeInFuture(output: (message: string) => void, datetime: Date) {
+	async handleDatetimeInFuture(output: (message: string) => void, datetime: Date) {
 		output(
 			`Warning: The provided datetime - ${datetime.toISOString()} - is in the future. Using the current datetime instead.`,
 		);
 		return new Date();
 	},
 
-	handleRunStart(output: (message: string) => void) {
+	async handleRunStart(output: (message: string) => void) {
 		output(
 			`Attempting to update package versions in "${
 				this.packageFilePath
@@ -44,23 +44,23 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 		);
 	},
 
-	handleReadingPackageFileStart(output: (message: string) => void) {
+	async handleReadingPackageFileStart(output: (message: string) => void) {
 		output(`Reading package file "${this.packageFilePath}"...`);
 	},
 
-	handleReadingPackageFileFinish(output: (message: string) => void, content: string) {
+	async handleReadingPackageFileFinish(output: (message: string) => void, content: string) {
 		output(`${content.length} ${pluralizeNoun('byte', content.length)} of "${this.packageFilePath}" read.`);
 	},
 
-	handleDiscoveringDependencyMapStart(output: (message: string) => void, map: DependencyType) {
+	async handleDiscoveringDependencyMapStart(output: (message: string) => void, map: DependencyType) {
 		output(`Discovering "${map}" dependencies...`);
 	},
 
-	handleDiscoveringDependencyMapFinish(
+	async handleDiscoveringDependencyMapFinish(
 		output: (message: string) => void,
 		map: DependencyType,
 		dependencyMap: DependencyMap = {},
-	): void {
+	) {
 		const count = Object.keys(dependencyMap).length;
 
 		if (!count) {
@@ -70,16 +70,16 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 		output(`${count} "${map}" ${pluralizeNoun('dependency', count)} found.`);
 	},
 
-	handleGettingPackageVersionDatesStart(output: (message: string) => void, packageName: string): void {
+	async handleGettingPackageVersionDatesStart(output: (message: string) => void, packageName: string) {
 		output(`Getting version dates for "${packageName}"...`);
 	},
 
-	handleGettingPackageVersionDatesFinish(
+	async handleGettingPackageVersionDatesFinish(
 		output: (message: string) => void,
 		packageName: string,
 		cacheDate: Date,
 		versions: VersionMap,
-	): void {
+	) {
 		const versionCount = Object.keys(versions).length;
 		output(
 			`Found ${versionCount} ${pluralizeNoun('version', versionCount)} for "${packageName}".${
@@ -88,12 +88,12 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 		);
 	},
 
-	handleCalculatedHighestVersion(
+	async handleCalculatedHighestVersion(
 		output: (message: string) => void,
 		packageName: string,
 		version: string,
 		highestVersion: string | null,
-	): void {
+	) {
 		if (!highestVersion) {
 			return output('No versions available.');
 		}
@@ -119,11 +119,11 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 		return promptUserForVersionAction(packageName, actions, output);
 	},
 
-	handleDependencyProcessed(
+	async handleDependencyProcessed(
 		output: (message: string) => void,
 		packageName: string,
 		version: { old: string; new: string },
-	): void {
+	) {
 		if (version.old !== version.new) {
 			output(`Updated "${packageName}" from "${version.old}" to "${version.new}".`);
 		} else {
@@ -131,7 +131,7 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 		}
 	},
 
-	handleDependencyMapProcessed(output: (message: string) => void, map: DependencyType, updates: DependencyMap): void {
+	async handleDependencyMapProcessed(output: (message: string) => void, map: DependencyType, updates: DependencyMap) {
 		const updateCount = Object.keys(updates).length;
 		if (!updateCount) {
 			output(`No changes made to "${map}".`);
@@ -140,7 +140,7 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 		}
 	},
 
-	handleChangesMade(output: (message: string) => void, changesMade: boolean): void {
+	async handleChangesMade(output: (message: string) => void, changesMade: boolean) {
 		if (!changesMade) {
 			return output('No changes made.');
 		}
@@ -150,43 +150,43 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 export default {
 	...BaseListener,
 
-	handleMissingArguments() {
+	async handleMissingArguments() {
 		return CLIListenerHandlers.handleMissingArguments.call(this, console.error);
 	},
 
-	handleInvalidDatetime(datetimeArg: string) {
+	async handleInvalidDatetime(datetimeArg: string) {
 		return CLIListenerHandlers.handleInvalidDatetime.call(this, console.error, datetimeArg);
 	},
 
-	handleDatetimeInFuture(datetime: Date) {
+	async handleDatetimeInFuture(datetime: Date) {
 		return CLIListenerHandlers.handleDatetimeInFuture.call(this, console.warn, datetime);
 	},
 
-	handleRunStart() {
+	async handleRunStart() {
 		return CLIListenerHandlers.handleRunStart.call(this, console.log);
 	},
 
-	handleReadingPackageFileStart() {
+	async handleReadingPackageFileStart() {
 		return CLIListenerHandlers.handleReadingPackageFileStart.call(this, console.log);
 	},
 
-	handleReadingPackageFileFinish(content: string) {
+	async handleReadingPackageFileFinish(content: string) {
 		return CLIListenerHandlers.handleReadingPackageFileFinish.call(this, console.log, content);
 	},
 
-	handleDiscoveringDependencyMapStart(map: DependencyType) {
+	async handleDiscoveringDependencyMapStart(map: DependencyType) {
 		return CLIListenerHandlers.handleDiscoveringDependencyMapStart.call(this, console.log, map);
 	},
 
-	handleDiscoveringDependencyMapFinish(map: DependencyType, dependencyMap?: DependencyMap) {
+	async handleDiscoveringDependencyMapFinish(map: DependencyType, dependencyMap?: DependencyMap) {
 		return CLIListenerHandlers.handleDiscoveringDependencyMapFinish.call(this, console.log, map, dependencyMap);
 	},
 
-	handleGettingPackageVersionDatesStart(packageName: string) {
+	async handleGettingPackageVersionDatesStart(packageName: string) {
 		return CLIListenerHandlers.handleGettingPackageVersionDatesStart.call(this, console.log, packageName);
 	},
 
-	handleGettingPackageVersionDatesFinish(packageName: string, cacheDate: Date, versions: VersionMap): void {
+	async handleGettingPackageVersionDatesFinish(packageName: string, cacheDate: Date, versions: VersionMap) {
 		return CLIListenerHandlers.handleGettingPackageVersionDatesFinish.call(
 			this,
 			console.log,
@@ -196,7 +196,7 @@ export default {
 		);
 	},
 
-	handleCalculatedHighestVersion(packageName: string, version: string, highestVersion: string | null): void {
+	async handleCalculatedHighestVersion(packageName: string, version: string, highestVersion: string | null) {
 		return CLIListenerHandlers.handleCalculatedHighestVersion.call(
 			this,
 			console.log,
@@ -210,19 +210,19 @@ export default {
 		return CLIListenerHandlers.handlePromptUserForVersionAction.call(this, console.log, packageName, actions);
 	},
 
-	handleDependencyProcessed(packageName: string, version: { old: string; new: string }): void {
+	async handleDependencyProcessed(packageName: string, version: { old: string; new: string }) {
 		return CLIListenerHandlers.handleDependencyProcessed.call(this, console.log, packageName, version);
 	},
 
-	handleDependencyMapProcessed(map: DependencyType, updates: DependencyMap): void {
+	async handleDependencyMapProcessed(map: DependencyType, updates: DependencyMap) {
 		return CLIListenerHandlers.handleDependencyMapProcessed.call(this, console.log, map, updates);
 	},
 
-	handleChangesMade(changesMade: boolean): void {
+	async handleChangesMade(changesMade: boolean) {
 		return CLIListenerHandlers.handleChangesMade.call(this, console.log, changesMade);
 	},
 
-	handleMakeChanges(oldPackageJson: object, newPackageJson: object) {
+	async handleMakeChanges(oldPackageJson: object, newPackageJson: object) {
 		return handleMakeChanges.call(
 			this,
 			console.log,

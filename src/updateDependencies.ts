@@ -11,12 +11,12 @@ export default async function updateDependencies(dependencyMap: DependencyMap, d
 	for (const packageName in dependencyMap) {
 		const version = parseRawVersion(dependencyMap[packageName]);
 
-		listener.handleGettingPackageVersionDatesStart(packageName);
+		await listener.handleGettingPackageVersionDatesStart(packageName);
 		const [versions, cacheDate] = await getPackageVersionDates(packageName, options.noCache ? new Date() : datetime);
-		listener.handleGettingPackageVersionDatesFinish(packageName, cacheDate, versions);
+		await listener.handleGettingPackageVersionDatesFinish(packageName, cacheDate, versions);
 
 		const highestVersion = getHighestVersionAtTime(versions, datetime, !options.allowPreRelease);
-		listener.handleCalculatedHighestVersion(packageName, version.version, highestVersion);
+		await listener.handleCalculatedHighestVersion(packageName, version.version, highestVersion);
 		if (highestVersion && version.version !== highestVersion) {
 			const updatedVersion = await listener.handlePromptUserForVersionAction(
 				packageName,
@@ -26,7 +26,7 @@ export default async function updateDependencies(dependencyMap: DependencyMap, d
 			if (updatedVersion !== version.raw) {
 				updatedDependencyMap[packageName] = updatedVersion;
 			}
-			listener.handleDependencyProcessed(packageName, {
+			await listener.handleDependencyProcessed(packageName, {
 				old: version.raw,
 				new: updatedVersion,
 			});

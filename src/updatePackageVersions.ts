@@ -7,19 +7,19 @@ import updateDependencies from './updateDependencies';
 export default async function updatePackageVersions(packageFilePath: string, datetime: Date, options: Options) {
 	const { listener } = options;
 
-	listener.handleReadingPackageFileStart();
+	await listener.handleReadingPackageFileStart();
 	const packageJsonString = await fs.promises.readFile(packageFilePath, 'utf8');
-	listener.handleReadingPackageFileFinish(packageJsonString);
+	await listener.handleReadingPackageFileFinish(packageJsonString);
 
 	const packageJson = JSON.parse(packageJsonString) as Record<DependencyType, DependencyMap>;
 	const oldPackageJson = JSON.parse(JSON.stringify(packageJson));
 
 	let changesMade = false;
 
-	const performDiscovery = (key: DependencyType) => {
-		listener.handleDiscoveringDependencyMapStart(key);
+	const performDiscovery = async (key: DependencyType) => {
+		await listener.handleDiscoveringDependencyMapStart(key);
 		const dependencyMap = packageJson[key];
-		listener.handleDiscoveringDependencyMapFinish(key, dependencyMap);
+		await listener.handleDiscoveringDependencyMapFinish(key, dependencyMap);
 		return dependencyMap;
 	};
 
@@ -29,14 +29,14 @@ export default async function updatePackageVersions(packageFilePath: string, dat
 			packageJson[key] = { ...dependencyMap, ...updates };
 			changesMade = true;
 		}
-		listener.handleDependencyMapProcessed(key, updates);
+		await listener.handleDependencyMapProcessed(key, updates);
 	};
 
 	if (options.preloadDependencies) {
 		const dependencyMaps: [DependencyType, DependencyMap][] = [];
 
 		for (const key of DEPENDENCY_TYPES) {
-			const dependencyMap = performDiscovery(key);
+			const dependencyMap = await performDiscovery(key);
 			if (dependencyMap) {
 				dependencyMaps.push([key, dependencyMap]);
 			}
@@ -47,14 +47,14 @@ export default async function updatePackageVersions(packageFilePath: string, dat
 		}
 	} else {
 		for (const key of DEPENDENCY_TYPES) {
-			const dependencyMap = performDiscovery(key);
+			const dependencyMap = await performDiscovery(key);
 			if (dependencyMap) {
 				await performDependenciesUpdate(key, dependencyMap);
 			}
 		}
 	}
 
-	listener.handleChangesMade(changesMade);
+	await listener.handleChangesMade(changesMade);
 	if (!changesMade) return;
 
 	return listener.handleMakeChanges(oldPackageJson, packageJson);
