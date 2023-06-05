@@ -1,10 +1,16 @@
 import CLIListener from './events/CLIListener';
 import type { Options } from './types';
 import SilentListener from './events/SilentListener';
+import TUIListener from './events/TUIListener';
 
 export default function generateOptions(args: string[]): Options {
 	const options: Options = {
-		listener: args.includes('--silent') ? SilentListener : CLIListener,
+		// prettier-ignore
+		listener: args.includes('--tui')
+			? TUIListener.clone()
+			: args.includes('--silent')
+				? SilentListener.clone()
+				: CLIListener.clone(),
 	};
 	if (args.includes('--strip-prefixes')) options.stripPrefixes = true;
 	if (args.includes('--interactive')) options.interactive = true;

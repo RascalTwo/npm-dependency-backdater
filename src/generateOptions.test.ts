@@ -1,13 +1,15 @@
 import CLIListener from './events/CLIListener';
 import SilentListener from './events/SilentListener';
+import TUIListener from './events/TUIListener';
 
 import generateOptions from './generateOptions';
 
 describe('generateOptions', () => {
-	const withoutSilent = { listener: CLIListener };
+	const withoutSilent = { listener: CLIListener.clone() };
 
 	test.each([
-		['--silent', { listener: SilentListener }],
+		['--silent', { listener: SilentListener.clone() }],
+		['--tui', { listener: TUIListener.clone() }],
 		['', withoutSilent],
 		['--strip-prefixes', { ...withoutSilent, stripPrefixes: true }],
 		['--interactive', { ...withoutSilent, interactive: true }],

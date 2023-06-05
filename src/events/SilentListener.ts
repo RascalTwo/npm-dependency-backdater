@@ -16,7 +16,7 @@ export default {
 	handleMakeChanges(oldPackageJson: object, newPackageJson: object) {
 		return handleMakeChanges.call(
 			this,
-			false,
+			undefined,
 			this.packageFilePath,
 			{ old: oldPackageJson, new: newPackageJson },
 			!!this.options.dryRun,

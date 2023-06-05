@@ -289,7 +289,7 @@ describe('CLIListener', () => {
 		await CLIListener.handleMakeChanges({ old: true }, { new: true });
 
 		expect(handleMakeChangesMock).toHaveBeenCalledWith(
-			true,
+			console.log,
 			'filepath',
 			{ old: { old: true }, new: { new: true } },
 			true,

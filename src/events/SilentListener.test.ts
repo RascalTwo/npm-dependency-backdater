@@ -23,6 +23,8 @@ describe('SilentListener default handlers are all silent', () => {
 	testHandlersAreSilent(
 		SilentListener,
 		expectResult,
+		'initialize',
+		'clone',
 		'handleRunStart',
 		'handleRunFinish',
 		'handleReadingPackageFileStart',
@@ -54,7 +56,7 @@ describe('SilentListener default handlers are all silent', () => {
 		await SilentListener.handleMakeChanges({ old: true }, { new: true });
 
 		expect(handleMakeChangesMock).toHaveBeenCalledWith(
-			false,
+			undefined,
 			'filepath',
 			{ old: { old: true }, new: { new: true } },
 			false,

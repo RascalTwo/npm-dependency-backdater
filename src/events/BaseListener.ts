@@ -11,6 +11,11 @@ const BaseEvents = {
 		this.datetime = datetime;
 		this.options = options;
 	},
+	clone() {
+		const clone = { ...this, options: { ...this.options, listener: this } };
+		clone.options.listener = clone;
+		return clone;
+	},
 	handleMissingArguments(): void {},
 	handleInvalidDatetime(datetime: string): void {},
 	handleDatetimeInFuture(datetime: Date): Date {

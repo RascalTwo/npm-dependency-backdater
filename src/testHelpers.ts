@@ -27,6 +27,16 @@ export const generateMockListener = () => {
 const TEST_MAP = {
 	initialize: (listener: BaseEventsListener, expectResult: (result: unknown) => void) =>
 		test('initialize', () => expectResult(listener.initialize('', new Date(), {} as Options))),
+	clone: (listener: BaseEventsListener, expectResult: (result: unknown) => void) =>
+		test('clone', () => {
+			const cloned = listener.clone();
+
+			expectResult(undefined);
+			expect(cloned).not.toBe(listener);
+			expect(cloned.options).not.toBe(listener.options);
+			expect(cloned.options.listener).toBe(cloned);
+			expect(cloned).toMatchObject(listener);
+		}),
 	handleMissingArguments: (listener: BaseEventsListener, expectResult: (result: unknown) => void) =>
 		test('handleMissingArguments', () => expectResult(listener.handleMissingArguments())),
 	handleInvalidDatetime: (listener: BaseEventsListener, expectResult: (result: unknown) => void) =>
