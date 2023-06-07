@@ -1,8 +1,10 @@
+import { PACKAGE_NAME } from '../constants';
+
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
 
-const generateCachePath = () => path.join(os.tmpdir(), process.env.npm_package_name as string, 'cache.json');
+const generateCachePath = () => path.join(os.tmpdir(), PACKAGE_NAME, 'cache.json');
 
 export async function loadCache<T extends object>() {
 	const cachePath = generateCachePath();

@@ -1,8 +1,6 @@
 import type { BaseEventsListener } from './events/BaseListener';
 import type { DEPENDENCY_TYPES } from './constants';
 
-export type LoggingFunction = (message: string) => void;
-
 export interface Options {
 	stripPrefixes?: boolean;
 	interactive?: boolean;

@@ -1,6 +1,6 @@
 import { generateMockListener } from './testHelpers';
 
-import main from '.';
+import main from './main';
 
 import updatePackageVersions from './updatePackageVersions';
 

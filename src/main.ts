@@ -31,7 +31,7 @@ export default async function main(packageFilePath: string, datetimeArg: string,
 // istanbul ignore next
 if (require.main === module) {
 	generateOptions(process.argv)
-		.then(options => main(process.argv[2], process.argv[3].startsWith('--') ? '' : process.argv[3], options))
+		.then(options => main(process.argv[2], process.argv[3]?.startsWith('--') ? '' : process.argv[3], options))
 		.catch(error => {
 			console.error(error);
 			process.exit(1);
