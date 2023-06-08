@@ -1,10 +1,14 @@
 # NPM Dependency Backdater
 
-![package version badge](https://img.shields.io/badge/npm--dependency--backdater-v3.2.1-blue) ![code coverage badge](https://img.shields.io/badge/coverage-100%25-lime)
+![package version badge](https://img.shields.io/badge/npm--dependency--backdater-v4.0.0-blue) ![code coverage badge](https://img.shields.io/badge/coverage-100%25-lime)
 
 A tool to update NPM dependencies to the latest version available at a specified date.
 
-For most people they could simply look at their version control history and see what the latest version was on a given date, but if you don't have that luxury, this tool will help you out.
+For those working on projects without version control, or even those who are but don't want to find the commit at the perfect, this is the tool for you!
+
+Maybe you want to update all your packages without breaking anything, well you can lock to the current major or minor versions to do just that!
+
+Perhaps you're an expert, and want to automate your manual process of updating packages, well interactive mode is built for you - you'll be prompted for each possible update!
 
 ## Usage
 
@@ -56,7 +60,6 @@ This tool is written in [TypeScript](https://www.typescriptlang.org/), and uses 
 
 Fully following Test-Driven-Development via [`jest`](https://jestjs.io/), with [`eslint`](https://eslint.org/) and [`prettier`](https://prettier.io/) maintaining code consistency - and [`husky`](https://www.npmjs.com/package/husky) to ensure these tools are not forgotten.
 
-## Future plans
+## Development
 
-- Prettier logging and live display of the progress.
-- Locking within (major, minor, patch) versions, to prevent breaking changes.
+The primary `main()` method along with the base and CLI event listeners have been exposed for custom implementation, an example of this can be seen in [`examples/custom-event-listener/src/index.ts`](examples/custom-event-listener/src/index.ts)

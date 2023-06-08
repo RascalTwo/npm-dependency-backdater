@@ -1,9 +1,11 @@
 {
   "name": "npm-dependency-backdater",
-  "version": "3.2.1",
+  "version": "4.0.0",
   "description": "A tool to update NPM dependencies to the latest version available at a specified date",
-  "main": "./dist/index.js",
+  "main": "./dist/main.js",
   "scripts": {
+    "start": "node ./dist/main.js",
+    "dev": "ts-node src/main.ts",
     "test": "jest src",
     "lint": "eslint *.js .*.js src",
     "lint:fix": "npm run lint -- --fix",
@@ -29,7 +31,7 @@
     "typescript": "^5.0.4"
   },
   "bin": {
-    "npm-dependency-backdater": "./dist/index.js"
+    "npm-dependency-backdater": "./dist/main.js"
   },
   "devDependencies": {
     "@types/jest": "^29.5.1",
