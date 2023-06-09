@@ -10,6 +10,17 @@ Maybe you want to update all your packages without breaking anything, well you c
 
 Perhaps you're an expert, and want to automate your manual process of updating packages, well interactive mode is built for you - you'll be prompted for each possible update!
 
+## Table of Contents
+
+- [NPM Dependency Backdater](#npm-dependency-backdater)
+  - [Table of Contents](#table-of-contents)
+  - [Usage](#usage)
+  - [Options](#options)
+  - [How it works](#how-it-works)
+  - [How it's made](#how-its-made)
+  - [Development](#development)
+    - [Sequence diagram of Events](#sequence-diagram-of-events)
+
 ## Usage
 
 ```bash
@@ -65,3 +76,116 @@ Fully following Test-Driven-Development via [`jest`](https://jestjs.io/), with [
 ## Development
 
 The primary `main()` method along with the base and CLI event listeners have been exposed for custom implementation, an example of this can be seen in [`examples/custom-event-listener/src/index.ts`](examples/custom-event-listener/src/index.ts)
+
+### Sequence diagram of Events
+
+```mermaid
+sequenceDiagram
+    participant P as Program
+    participant E as Event Listener
+
+    break arguments are missing
+        P ->> E: handleMissingArguments
+    end
+
+    break provided datetime is invalid
+        P ->> E: handleInvalidDatetime
+    end
+
+    critical provided datetime
+        option is invalid
+            break
+                P ->> E: handleInvalidDatetime
+            end
+
+        option is in future
+            P ->> E: handleDatetimeInFuture
+            E -->> P: Date to use
+    end
+
+    P ->> E: initialize
+    E -->> P: &nbsp;
+
+    P ->> E: handleRunStart
+    E -->> P: &nbsp;
+
+    P ->> E: handleReadingPackageFileStart
+    E -->> P: &nbsp;
+
+    P ->> E: handleReadingPackageFileFinish
+    E -->> P: &nbsp;
+
+    critical dependencies
+        option being preloaded
+            loop dependency map type
+                P ->> E: handleDiscoveringDependencyMapStart
+                E -->> P: &nbsp;
+
+                P ->> E: handleDiscoveringDependencyMapFinish
+                E -->> P: &nbsp;
+
+                loop dependency in dependency map
+                    P ->> E: handleGettingPackageVersionDatesStart
+                    E -->> P: &nbsp;
+
+                    P ->> E: handleGettingPackageVersionDatesFinish
+                    E -->> P: &nbsp;
+
+                    P ->> E: handleCalculatedHighestVersion
+                    E -->> P: &nbsp;
+
+                    critical highest version isn't what's currently being used
+                        P ->> E: handlePromptUserForVersionAction
+                        E -->> P: version to use
+                    end
+
+                    P ->> E: handleDependencyProcessed
+                    E -->> P: &nbsp;
+                end
+
+                P ->> E: handleDependencyMapProcessed
+                E -->> P: &nbsp;
+            end
+        option as found
+            loop dependency map type
+                P ->> E: handleDiscoveringDependencyMapStart
+                E -->> P: &nbsp;
+
+                P ->> E: handleDiscoveringDependencyMapFinish
+                E -->> P: &nbsp;
+            end
+            loop dependency in dependency map
+                P ->> E: handleGettingPackageVersionDatesStart
+                E -->> P: &nbsp;
+
+                P ->> E: handleGettingPackageVersionDatesFinish
+                E -->> P: &nbsp;
+
+                P ->> E: handleCalculatedHighestVersion
+                E -->> P: &nbsp;
+
+                critical highest version isn't what's currently being used
+                    P ->> E: handlePromptUserForVersionAction
+                    E -->> P: version to use
+                end
+
+                P ->> E: handleDependencyProcessed
+                E -->> P: &nbsp;
+            end
+
+            P ->> E: handleDependencyMapProcessed
+            E -->> P: &nbsp;
+    end
+
+
+    P ->> E: handleChangesMade
+    E -->> P: &nbsp;
+
+    critical if changes made
+        P ->> E: handleMakeChanges
+        E -->> P: &nbsp;
+    end
+
+    P ->> E: handleRunFinish
+    E -->> P: &nbsp;
+```
