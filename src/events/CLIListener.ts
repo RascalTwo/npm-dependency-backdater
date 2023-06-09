@@ -10,7 +10,8 @@ export const CLIListenerHandlers = {
 	...BaseListener,
 
 	async handleMissingArguments(output: (message: string) => void) {
-		output(`Usage: npm-dependency-backdater <package.json location> [<datetime>] [--silent] [--tui] [--strip-prefixes] [--interactive] [--allow-pre-release] [--dry-run] [--preload-dependencies] [--no-cache] [--lock-major] [--lock-minor] [--warnings-as-errors]
+		await this.delay();
+		output(`Usage: npm-dependency-backdater <package.json location> [<datetime>] [--silent] [--tui] [--strip-prefixes] [--interactive] [--allow-pre-release] [--dry-run] [--preload-dependencies] [--no-cache] [--lock-major] [--lock-minor] [--warnings-as-errors] [--delay[=milliseconds]]
 
 package.json location: The location of the package.json file to update
 datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
@@ -26,14 +27,17 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 --no-cache: Whether to ignore the cache when getting package version dates
 --lock-[major/minor]: Prevent updating the major/minor version of a package
 --warnings-as-errors: Treat warnings as errors, exiting the program if any are encountered
+--delay[=milliseconds]: Milliseconds to wait between events, defaults to 1000
 		`);
 	},
 
 	async handleInvalidDatetime(output: (message: string) => void, datetimeArg: string) {
+		await this.delay();
 		output(`Expected a valid datetime (YYYY-MM-DDTHH:mm:ssZ) but received "${datetimeArg}".`);
 	},
 
 	async handleDatetimeInFuture(output: (message: string) => void, datetime: Date) {
+		await this.delay();
 		output(
 			`Warning: The provided datetime - ${datetime.toISOString()} - is in the future. Using the current datetime instead.`,
 		);
@@ -41,6 +45,7 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 	},
 
 	async handleRunStart(output: (message: string) => void) {
+		await this.delay();
 		output(
 			`Attempting to update package versions in "${
 				this.packageFilePath
@@ -49,14 +54,17 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 	},
 
 	async handleReadingPackageFileStart(output: (message: string) => void) {
+		await this.delay();
 		output(`Reading package file "${this.packageFilePath}"...`);
 	},
 
 	async handleReadingPackageFileFinish(output: (message: string) => void, content: string) {
+		await this.delay();
 		output(`${content.length} ${pluralizeNoun('byte', content.length)} of "${this.packageFilePath}" read.`);
 	},
 
 	async handleDiscoveringDependencyMapStart(output: (message: string) => void, map: DependencyType) {
+		await this.delay();
 		output(`Discovering "${map}" dependencies...`);
 	},
 
@@ -65,6 +73,7 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 		map: DependencyType,
 		dependencyMap: DependencyMap = {},
 	) {
+		await this.delay();
 		const count = Object.keys(dependencyMap).length;
 
 		if (!count) {
@@ -75,10 +84,12 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 	},
 
 	async handleGettingPackageVersionDatesStart(output: (message: string) => void, packageName: string) {
+		await this.delay();
 		output(`Getting version dates for "${packageName}"...`);
 	},
 
 	async handleNPMRegistryError(output: (message: string) => void, packageName: string, error: NPMRegistryError) {
+		await this.delay();
 		output(error.message);
 		if (this.options.warningsAsErrors) process.exit(1);
 	},
@@ -89,6 +100,7 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 		cacheDate: Date,
 		versions: VersionMap,
 	) {
+		await this.delay();
 		const versionCount = Object.keys(versions).length;
 		output(
 			`Found ${versionCount} ${pluralizeNoun('version', versionCount)} for "${packageName}".${
@@ -103,6 +115,7 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 		version: string,
 		highestVersion: string | null,
 	) {
+		await this.delay();
 		if (!highestVersion) {
 			return output('No versions available.');
 		}
@@ -122,6 +135,7 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 		packageName: string,
 		actions: VersionAction[],
 	): Promise<string> {
+		await this.delay();
 		if (!this.options.interactive) {
 			return actions[1][1];
 		}
@@ -133,6 +147,7 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 		packageName: string,
 		version: { old: string; new: string },
 	) {
+		await this.delay();
 		if (version.old !== version.new) {
 			output(`Updated "${packageName}" from "${version.old}" to "${version.new}".`);
 		} else {
@@ -141,6 +156,7 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 	},
 
 	async handleDependencyMapProcessed(output: (message: string) => void, map: DependencyType, updates: DependencyMap) {
+		await this.delay();
 		const updateCount = Object.keys(updates).length;
 		if (!updateCount) {
 			output(`No changes made to "${map}".`);
@@ -150,6 +166,7 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 	},
 
 	async handleChangesMade(output: (message: string) => void, changesMade: boolean) {
+		await this.delay();
 		if (!changesMade) {
 			return output('No changes made.');
 		}
@@ -241,6 +258,7 @@ export default {
 	},
 
 	async handleMakeChanges(oldPackageJson: object, newPackageJson: object) {
+		await this.delay();
 		return handleMakeChanges.call(
 			this,
 			console.log,

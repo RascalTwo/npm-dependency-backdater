@@ -20,6 +20,9 @@ describe('generateOptions', () => {
 		['--lock-minor', { ...withoutSilent, lock: { minor: true } }],
 		['--lock-major', { ...withoutSilent, lock: { major: true } }],
 		['--warnings-as-errors', { ...withoutSilent, warningsAsErrors: true }],
+		['--delay', { ...withoutSilent, delay: 1000 }],
+		['--delay=1234', { ...withoutSilent, delay: 1234 }],
+		['--delay=-1234', { ...withoutSilent }],
 	])('"%s" flag', async (arg, expectedOptions) => {
 		await expect(generateOptions([arg])).resolves.toMatchObject(expectedOptions);
 	});
@@ -42,6 +45,7 @@ describe('generateOptions', () => {
 				'--no-cache',
 				'--lock-major',
 				'--warnings-as-errors',
+				'--delay=2500',
 			]),
 		).resolves.toMatchObject({
 			stripPrefixes: true,
@@ -52,6 +56,7 @@ describe('generateOptions', () => {
 			noCache: true,
 			lock: { major: true },
 			warningsAsErrors: true,
+			delay: 2500,
 		});
 	});
 });

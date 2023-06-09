@@ -23,6 +23,7 @@ describe('SilentListener default handlers are all silent', () => {
 	testHandlersAreSilent(
 		SilentListener,
 		expectResult,
+		undefined,
 		'initialize',
 		'clone',
 		'handleRunStart',

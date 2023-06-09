@@ -24,5 +24,15 @@ export default async function generateOptions(args: string[]): Promise<Options> 
 		options.lock = { minor: true };
 	}
 	if (args.includes('--warnings-as-errors')) options.warningsAsErrors = true;
+
+	const delayArg = args.find(arg => arg.startsWith('--delay'));
+	if (delayArg) {
+		const value = delayArg.split('=')[1] ?? '1000';
+		const number = parseFloat(value);
+		if (number > 0) {
+			options.delay = Math.max(0, number);
+		}
+	}
+
 	return options;
 }

@@ -16,6 +16,7 @@ export default {
 	handlePromptUserForVersionAction: CLIListener.handlePromptUserForVersionAction,
 
 	async handleMakeChanges(oldPackageJson: object, newPackageJson: object) {
+		await this.delay();
 		return handleMakeChanges.call(
 			this,
 			undefined,

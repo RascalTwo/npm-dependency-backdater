@@ -1,6 +1,6 @@
 # NPM Dependency Backdater
 
-![package version badge](https://img.shields.io/badge/npm--dependency--backdater-v4.1.0-blue) ![code coverage badge](https://img.shields.io/badge/coverage-100%25-lime)
+![package version badge](https://img.shields.io/badge/npm--dependency--backdater-v4.2.0-blue) ![code coverage badge](https://img.shields.io/badge/coverage-100%25-lime)
 
 A tool to update NPM dependencies to the latest version available at a specified date.
 
@@ -33,7 +33,7 @@ npm-dependency-backdater package.json
 ## Options
 
 ```bash
-npm-dependency-backdater <package.json location> [<datetime>] [--silent] [--tui] [--strip-prefixes] [--interactive] [--allow-pre-release] [--dry-run] [--preload-dependencies] [--no-cache] [--lock-major] [--lock-minor] [--warnings-as-errors]
+npm-dependency-backdater <package.json location> [<datetime>] [--silent] [--tui] [--strip-prefixes] [--interactive] [--allow-pre-release] [--dry-run] [--preload-dependencies] [--no-cache] [--lock-major] [--lock-minor] [--warnings-as-errors] [--delay[=milliseconds]]
 
 package.json location: The location of the package.json file to update
 datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
@@ -60,6 +60,8 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
   - Prevent updating the major/minor version of a package
 - `--warnings-as-errors`
   - Treat warnings as errors, exiting the program if any are encountered
+- `--delay[=milliseconds]`
+  - Milliseconds to wait between events, defaults to 1000
 
 ## How it works
 

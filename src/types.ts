@@ -13,6 +13,7 @@ export interface Options {
 		minor?: boolean;
 	};
 	warningsAsErrors?: boolean;
+	delay?: number;
 	listener: BaseEventsListener;
 }
 

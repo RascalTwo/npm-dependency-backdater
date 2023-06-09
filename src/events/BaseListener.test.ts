@@ -17,6 +17,7 @@ describe('BaseListener default handlers are all silent', () => {
 	testHandlersAreSilent(
 		BaseListener,
 		expectResult,
+		1,
 		...(Object.keys(BaseListener).filter(
 			key => typeof BaseListener[key as keyof BaseEventsListener] === 'function' && key.startsWith('handle'),
 		) as UnresponsiveBaseEventsHandlers),

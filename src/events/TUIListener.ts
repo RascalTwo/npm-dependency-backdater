@@ -32,6 +32,8 @@ export default {
 		}
 
 		this.log = this.log.bind(this);
+
+		return this;
 	},
 	async clone() {
 		const clone = {
