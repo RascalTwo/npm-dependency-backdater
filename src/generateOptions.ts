@@ -23,5 +23,6 @@ export default async function generateOptions(args: string[]): Promise<Options> 
 		if (options.lock) throw new Error('Cannot lock both major and minor versions');
 		options.lock = { minor: true };
 	}
+	if (args.includes('--warnings-as-errors')) options.warningsAsErrors = true;
 	return options;
 }

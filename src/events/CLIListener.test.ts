@@ -3,6 +3,7 @@ import type { Options, VersionAction } from '../types';
 
 import CLIListener from './CLIListener';
 
+import { NPMRegistryError } from '../fetchPackageVersionDates';
 import { generateConsoleMock } from '../testHelpers';
 import { handleMakeChanges } from './commonHandlers';
 import promptUserForVersionAction from '../utils/promptUserForVersionAction';
@@ -132,6 +133,26 @@ describe('CLIListener', () => {
 			await CLIListener.handleGettingPackageVersionDatesStart('dependency1');
 
 			expect(console.log).toHaveBeenCalledWith('Getting version dates for "dependency1"...');
+		});
+	});
+
+	describe('handleNPMRegistryError', () => {
+		beforeEach(() => jest.spyOn(process, 'exit').mockImplementation(() => undefined as never));
+
+		test('outputs warning message', async () => {
+			await CLIListener.handleNPMRegistryError('dependency1', new NPMRegistryError('message', { error: 'message' }));
+
+			expect(console.warn).toHaveBeenCalledWith('message');
+			expect(process.exit).not.toHaveBeenCalled();
+		});
+
+		test('outputs error message and exits when treating warnings as errors', async () => {
+			await CLIListener.initialize('', new Date(), { warningsAsErrors: true } as Options);
+
+			await CLIListener.handleNPMRegistryError('dependency1', new NPMRegistryError('message', { error: 'message' }));
+
+			expect(console.error).toHaveBeenCalledWith('message');
+			expect(process.exit).toHaveBeenCalledWith(1);
 		});
 	});
 

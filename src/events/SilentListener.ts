@@ -11,6 +11,8 @@ export default {
 
 	handleDatetimeInFuture: CLIListener.handleDatetimeInFuture,
 
+	handleNPMRegistryError: CLIListener.handleNPMRegistryError,
+
 	handlePromptUserForVersionAction: CLIListener.handlePromptUserForVersionAction,
 
 	async handleMakeChanges(oldPackageJson: object, newPackageJson: object) {

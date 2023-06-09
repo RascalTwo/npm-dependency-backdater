@@ -1,3 +1,4 @@
+import { NPMRegistryError } from './fetchPackageVersionDates';
 import { generateMockListener } from './testHelpers';
 
 import generateVersionActions from './generateVersionActions';
@@ -27,7 +28,7 @@ describe('updateDependencies', () => {
 
 	beforeEach(() => getPackageVersionDatesMock.mockResolvedValue([{}, datetime]));
 
-	describe('calls getHighestVersionAtTime', () => {
+	describe('getHighestVersionAtTime is called', () => {
 		test('with package versions for each dependency', async () => {
 			getPackageVersionDatesMock
 				.mockResolvedValueOnce([dependency1Versions, datetime])
@@ -76,6 +77,22 @@ describe('updateDependencies', () => {
 				current: [1, 0],
 				major: true,
 			});
+		});
+
+		test('and NPMRegistryError is emitted', async () => {
+			const error = new NPMRegistryError('message', { error: 'message' });
+			getPackageVersionDatesMock.mockRejectedValue(error);
+
+			await updateDependencies(dependencies, datetime, { listener });
+
+			expect(listener.handleNPMRegistryError).toHaveBeenCalledWith('dependency1', error);
+		});
+
+		test('fetch-errors are thrown', async () => {
+			const error = new Error('message');
+			getPackageVersionDatesMock.mockRejectedValue(error);
+
+			await expect(updateDependencies(dependencies, datetime, { listener })).rejects.toThrow(error);
 		});
 	});
 

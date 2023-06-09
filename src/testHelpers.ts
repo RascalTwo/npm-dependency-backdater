@@ -1,5 +1,6 @@
 import type { BaseEventsListener, UnresponsiveBaseEventsHandlers } from './events/BaseListener';
 import BaseListener from './events/BaseListener';
+import { NPMRegistryError } from './fetchPackageVersionDates';
 import type { Options } from './types';
 
 export const generateMockListener = () => {
@@ -63,6 +64,9 @@ const TEST_MAP = {
 	handleGettingPackageVersionDatesStart: (listener: BaseEventsListener, expectResult: (result: unknown) => void) =>
 		test('handleGettingPackageVersionDatesStart', async () =>
 			expectResult(await listener.handleGettingPackageVersionDatesStart(''))),
+	handleNPMRegistryError: (listener: BaseEventsListener, expectResult: (result: unknown) => void) =>
+		test('handleNPMRegistryError', async () =>
+			expectResult(await listener.handleNPMRegistryError('', new NPMRegistryError('', { error: '' })))),
 	handleGettingPackageVersionDatesFinish: (listener: BaseEventsListener, expectResult: (result: unknown) => void) =>
 		test('handleGettingPackageVersionDatesFinish', async () =>
 			expectResult(await listener.handleGettingPackageVersionDatesFinish('', new Date(), {}))),

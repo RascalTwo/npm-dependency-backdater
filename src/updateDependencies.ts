@@ -1,4 +1,5 @@
-import type { DependencyMap, Options } from './types';
+import type { DependencyMap, Options, VersionMap } from './types';
+import { NPMRegistryError } from './fetchPackageVersionDates';
 import generateVersionActions from './generateVersionActions';
 import getHighestVersionAtTime from './getHighestVersionAtTime';
 import getPackageVersionDates from './getPackageVersionDates';
@@ -12,7 +13,16 @@ export default async function updateDependencies(dependencyMap: DependencyMap, d
 		const version = parseRawVersion(dependencyMap[packageName]);
 
 		await listener.handleGettingPackageVersionDatesStart(packageName);
-		const [versions, cacheDate] = await getPackageVersionDates(packageName, options.noCache ? new Date() : datetime);
+		let [versions, cacheDate] = [{} as VersionMap, new Date()];
+		try {
+			[versions, cacheDate] = await getPackageVersionDates(packageName, options.noCache ? new Date() : datetime);
+		} catch (e) {
+			if (e instanceof NPMRegistryError) {
+				await listener.handleNPMRegistryError(packageName, e);
+			} else {
+				throw e;
+			}
+		}
 		await listener.handleGettingPackageVersionDatesFinish(packageName, cacheDate, versions);
 
 		const highestVersion = getHighestVersionAtTime(

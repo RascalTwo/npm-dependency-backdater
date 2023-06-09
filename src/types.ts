@@ -12,6 +12,7 @@ export interface Options {
 		major?: boolean;
 		minor?: boolean;
 	};
+	warningsAsErrors?: boolean;
 	listener: BaseEventsListener;
 }
 
@@ -34,3 +35,15 @@ export interface ParsedVersion {
 export type DependencyType = (typeof DEPENDENCY_TYPES)[number];
 
 export type VersionAction = [string, string];
+
+export interface NPMRegistrySuccessResponse {
+	[key: string]: unknown;
+	time: VersionMap;
+}
+
+export interface NPMRegistryErrorResponse {
+	[key: string]: unknown;
+	error: string;
+}
+
+export type NPMRegistryResponse = NPMRegistrySuccessResponse | NPMRegistryErrorResponse;

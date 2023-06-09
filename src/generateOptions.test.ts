@@ -19,6 +19,7 @@ describe('generateOptions', () => {
 		['--no-cache', { ...withoutSilent, noCache: true }],
 		['--lock-minor', { ...withoutSilent, lock: { minor: true } }],
 		['--lock-major', { ...withoutSilent, lock: { major: true } }],
+		['--warnings-as-errors', { ...withoutSilent, warningsAsErrors: true }],
 	])('"%s" flag', async (arg, expectedOptions) => {
 		await expect(generateOptions([arg])).resolves.toMatchObject(expectedOptions);
 	});
@@ -40,6 +41,7 @@ describe('generateOptions', () => {
 				'--preload-dependencies',
 				'--no-cache',
 				'--lock-major',
+				'--warnings-as-errors',
 			]),
 		).resolves.toMatchObject({
 			stripPrefixes: true,
@@ -49,6 +51,7 @@ describe('generateOptions', () => {
 			preloadDependencies: true,
 			noCache: true,
 			lock: { major: true },
+			warningsAsErrors: true,
 		});
 	});
 });

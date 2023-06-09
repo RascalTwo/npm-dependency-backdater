@@ -44,6 +44,7 @@ describe('SilentListener default handlers are all silent', () => {
 			'handleMissingArguments',
 			'handleInvalidDatetime',
 			'handleDatetimeInFuture',
+			'handleNPMRegistryError',
 			'handlePromptUserForVersionAction',
 		] as const)('%s', async handler => {
 			expect(SilentListener[handler]).toBe(CLIListener[handler]);

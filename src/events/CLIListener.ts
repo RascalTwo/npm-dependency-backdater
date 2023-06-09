@@ -1,5 +1,6 @@
 import type { DependencyMap, DependencyType, VersionAction, VersionMap } from '../types';
 import BaseListener from './BaseListener';
+import type { NPMRegistryError } from '../fetchPackageVersionDates';
 import { SUPPORTED_VERSION_PREFIXES } from '../constants';
 import { handleMakeChanges } from './commonHandlers';
 import pluralizeNoun from '../utils/pluralizeNoun';
@@ -9,7 +10,7 @@ export const CLIListenerHandlers = {
 	...BaseListener,
 
 	async handleMissingArguments(output: (message: string) => void) {
-		output(`Usage: npm-dependency-backdater <package.json location> [<datetime>] [--silent] [--tui] [--strip-prefixes] [--interactive] [--allow-pre-release] [--dry-run] [--preload-dependencies] [--no-cache] [--lock-major] [--lock-minor]
+		output(`Usage: npm-dependency-backdater <package.json location> [<datetime>] [--silent] [--tui] [--strip-prefixes] [--interactive] [--allow-pre-release] [--dry-run] [--preload-dependencies] [--no-cache] [--lock-major] [--lock-minor] [--warnings-as-errors]
 
 package.json location: The location of the package.json file to update
 datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
@@ -24,6 +25,7 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 --preload-dependencies: Whether to preload all package names before updating them
 --no-cache: Whether to ignore the cache when getting package version dates
 --lock-[major/minor]: Prevent updating the major/minor version of a package
+--warnings-as-errors: Treat warnings as errors, exiting the program if any are encountered
 		`);
 	},
 
@@ -74,6 +76,11 @@ datetime: The datetime to update the package versions to (YYYY-MM-DDTHH:mm:ssZ)
 
 	async handleGettingPackageVersionDatesStart(output: (message: string) => void, packageName: string) {
 		output(`Getting version dates for "${packageName}"...`);
+	},
+
+	async handleNPMRegistryError(output: (message: string) => void, packageName: string, error: NPMRegistryError) {
+		output(error.message);
+		if (this.options.warningsAsErrors) process.exit(1);
 	},
 
 	async handleGettingPackageVersionDatesFinish(
@@ -186,6 +193,15 @@ export default {
 
 	async handleGettingPackageVersionDatesStart(packageName: string) {
 		return CLIListenerHandlers.handleGettingPackageVersionDatesStart.call(this, console.log, packageName);
+	},
+
+	async handleNPMRegistryError(packageName: string, error: NPMRegistryError) {
+		return CLIListenerHandlers.handleNPMRegistryError.call(
+			this,
+			this.options.warningsAsErrors ? console.error : console.warn,
+			packageName,
+			error,
+		);
 	},
 
 	async handleGettingPackageVersionDatesFinish(packageName: string, cacheDate: Date, versions: VersionMap) {

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-empty-function */
 import type { DependencyMap, DependencyType, Options, VersionAction, VersionMap } from '../types';
+import type { NPMRegistryError } from '../fetchPackageVersionDates';
 
 const BaseEvents = {
 	packageFilePath: '',
@@ -31,6 +32,7 @@ const BaseEvents = {
 		dependencyMap?: DependencyMap | undefined,
 	): Promise<void> {},
 	async handleGettingPackageVersionDatesStart(packageName: string): Promise<void> {},
+	async handleNPMRegistryError(packageName: string, error: NPMRegistryError): Promise<void> {},
 	async handleGettingPackageVersionDatesFinish(
 		packageName: string,
 		cacheDate: Date,

@@ -1,4 +1,5 @@
 import CLIListener, { CLIListenerHandlers } from './CLIListener';
+import { NPMRegistryError } from '../fetchPackageVersionDates';
 import type { Options } from '../types';
 import TUIListener from './TUIListener';
 import { generateConsoleMock } from '../testHelpers';
@@ -247,6 +248,18 @@ describe('TUIListener', () => {
 			expect(CLIListenerHandlersMock.handleGettingPackageVersionDatesStart).toHaveBeenCalledWith(
 				TUIInstance.log,
 				'test-package',
+			);
+		});
+
+		test('handleNPMRegistryError', async () => {
+			const error = new NPMRegistryError('message', { error: 'message' });
+
+			await TUIInstance.handleNPMRegistryError('test-package', error);
+
+			expect(CLIListenerHandlersMock.handleNPMRegistryError).toHaveBeenCalledWith(
+				TUIInstance.log,
+				'test-package',
+				error,
 			);
 		});
 

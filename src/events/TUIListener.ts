@@ -1,6 +1,7 @@
 import CLIListener, { CLIListenerHandlers } from './CLIListener';
 import type { DependencyMap, DependencyType, Options, VersionAction, VersionMap } from '../types';
 import BaseListener from './BaseListener';
+import type { NPMRegistryError } from '../fetchPackageVersionDates';
 import padStringCenter from '../utils/padStringCenter';
 
 export default {
@@ -159,6 +160,10 @@ export default {
 
 		this.current.packageName = packageName;
 		return CLIListenerHandlers.handleGettingPackageVersionDatesStart.call(this, this.log, packageName);
+	},
+
+	async handleNPMRegistryError(packageName: string, error: NPMRegistryError) {
+		return CLIListenerHandlers.handleNPMRegistryError.call(this, this.log, packageName, error);
 	},
 
 	async handleGettingPackageVersionDatesFinish(packageName: string, cacheDate: Date, versions: VersionMap) {
