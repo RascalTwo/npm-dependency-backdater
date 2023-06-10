@@ -4,11 +4,15 @@
 
 A tool to update NPM dependencies to the latest version available at a specified date.
 
-For those working on projects without version control, or even those who are but don't want to find the commit at the perfect, this is the tool for you!
+For those working on projects without version control, or even those who are but don't want to find the commit at the perfect time, this is the tool for you!
 
 Maybe you want to update all your packages without breaking anything, well you can lock to the current major or minor versions to do just that!
 
 Perhaps you're an expert, and want to automate your manual process of updating packages, well interactive mode is built for you - you'll be prompted for each possible update!
+
+|                                                        Backdating                                                        |                                                         Updating                                                         |
+| :----------------------------------------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------------------------------------: |
+| <video src="https://github.com/RascalTwo/npm-dependency-backdater/assets/9403665/4b912e6b-703a-4d9c-9c3e-f76e9ed9651f"/> | <video src="https://github.com/RascalTwo/npm-dependency-backdater/assets/9403665/ad2f8eba-e2a9-4008-b291-605785dcf744"/> |
 
 ## Table of Contents
 
