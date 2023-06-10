@@ -97,7 +97,7 @@ export default {
 			}
 		}
 
-		lines.push(breadCrumbs.padEnd(width - 2, ' ') + ' |');
+		lines.push(breadCrumbs.padEnd(width - 2, ' ') + ' │');
 
 		lines.push('├' + '─'.repeat(width - 2) + '┤');
 
